@@ -40,7 +40,7 @@ class _SamePad(nn.Module):
 
     def forward(self, x):
         if self.stride == 2 and x.shape[2] % 2 == 0:
-            return F.pad(x, (0, 1, 0, 1))
+            return F.pad(x, (0, 1, 0, 1)) # 对输入矩阵的后两个维度进行扩充
         return F.pad(x, (1, 1, 1, 1))
 
 
@@ -70,7 +70,7 @@ def _conv2d(
 class _EncoderBlock(nn.Module):
     def __init__(
         self,
-        pre_channels,
+        pre_channels, #
         in_channels,
         out_channels,
         num_layers,
@@ -80,14 +80,14 @@ class _EncoderBlock(nn.Module):
         super().__init__()
         self.num_layers = num_layers
         self.pre_conv = _conv2d(
-            in_channels=pre_channels,
+            in_channels=pre_channels, # pre层将通道数调节为pre
             out_channels=pre_channels,
             kernel_size=3,
             stride=2,
             activate=False,
         )
 
-        self.conv0 = _conv2d(
+        self.conv0 = _conv2d( # 第1层
             in_channels=in_channels + pre_channels,
             out_channels=out_channels,
             kernel_size=3,
@@ -95,7 +95,7 @@ class _EncoderBlock(nn.Module):
             out_size=out_size,
         )
         total_channels = in_channels + out_channels
-        for i in range(1, num_layers):
+        for i in range(1, num_layers): # 从第二层开始循环加卷积层
             self.add_module(
                 "conv%d" % i,
                 _conv2d(
@@ -106,9 +106,9 @@ class _EncoderBlock(nn.Module):
                     out_size=out_size,
                 ),
             )
-            total_channels += out_channels
+            total_channels += out_channels # 通道数在增加
         self.add_module(
-            "conv%d" % num_layers,
+            "conv%d" % num_layers, # 第num_layers+1层
             _conv2d(
                 in_channels=total_channels,
                 out_channels=out_channels,
@@ -122,16 +122,16 @@ class _EncoderBlock(nn.Module):
     def forward(self, inp):
         pre_input, x = inp
         pre_input = self.pre_conv(pre_input)
-        out = self.conv0(torch.cat([x, pre_input], 1))
+        out = self.conv0(torch.cat([x, pre_input], 1)) # 和pre层拼接
 
         all_outputs = [x, out]
         for i in range(1, self.num_layers + 1):
             input_features = torch.cat(
-                [all_outputs[-1], all_outputs[-2]] + all_outputs[:-2], 1
+                [all_outputs[-1], all_outputs[-2]] + all_outputs[:-2], 1 # 拼接（为什么要拼接
             )
             module = self._modules["conv%d" % i]
-            out = module(input_features)
-            all_outputs.append(out)
+            out = module(input_features) # 逐层forward
+            all_outputs.append(out) # 记录输出到all_outputs
         return all_outputs[-2], all_outputs[-1]
 
 
@@ -144,10 +144,10 @@ class Discriminator(nn.Module):
         self.layer_sizes = [64, 64, 128, 128]
         self.num_inner_layers = 5
 
-        # Number of times dimension is halved
+        # Number of times dimension is halved 尺寸减半的次数
         self.depth = len(self.layer_sizes)
 
-        # dimension at each level of U-net
+        # dimension at each level of U-net U-net每个级别的维度
         self.dim_arr = [dim]
         for i in range(self.depth):
             self.dim_arr.append((self.dim_arr[-1] + 1) // 2)
@@ -165,8 +165,8 @@ class Discriminator(nn.Module):
                 "encode%d" % i,
                 _EncoderBlock(
                     pre_channels=self.channels if i == 1 else self.layer_sizes[i - 1],
-                    in_channels=self.layer_sizes[i - 1],
-                    out_channels=self.layer_sizes[i],
+                    in_channels=self.layer_sizes[i - 1], # 上一层的输出
+                    out_channels=self.layer_sizes[i], # 设定的本层输出
                     num_layers=self.num_inner_layers,
                     out_size=self.dim_arr[i],
                     dropout_rate=dropout_rate,
@@ -177,7 +177,7 @@ class Discriminator(nn.Module):
         self.dense2 = nn.Linear(self.layer_sizes[-1] * self.dim_arr[-1] ** 2 + 1024, 1)
 
     def forward(self, x1, x2):
-        x = torch.cat([x1, x2], 1)
+        x = torch.cat([x1, x2], 1) # 拼接
         out = [x, self.encode0(x)]
         for i in range(1, len(self.layer_sizes)):
             out = self._modules["encode%d" % i](out)

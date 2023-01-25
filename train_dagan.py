@@ -23,17 +23,17 @@ args = get_dagan_args()
 dataset_path = args.dataset_path
 raw_data = np.load(dataset_path).copy()
 
-final_generator_path = args.final_model_path
-save_checkpoint_path = args.save_checkpoint_path
-load_checkpoint_path = args.load_checkpoint_path
-in_channels = raw_data.shape[-1]
-img_size = args.img_size or raw_data.shape[2]
-num_training_classes = args.num_training_classes
-num_val_classes = args.num_val_classes
+final_generator_path = args.final_model_path # 保存模型的位置
+save_checkpoint_path = args.save_checkpoint_path # 保存检查点的位置
+load_checkpoint_path = args.load_checkpoint_path # 加载检查点的位置
+in_channels = raw_data.shape[-1] # 输入通道数
+img_size = args.img_size or raw_data.shape[2] # 图像尺寸
+num_training_classes = args.num_training_classes # 训练的类别数
+num_val_classes = args.num_val_classes # 测试的类别数
 batch_size = args.batch_size
 epochs = args.epochs
 dropout_rate = args.dropout_rate
-max_pixel_value = args.max_pixel_value
+max_pixel_value = args.max_pixel_value # 最大？？？
 should_display_generations = not args.suppress_generations
 
 # Input sanity checks
@@ -64,10 +64,11 @@ train_transform = transforms.Compose(
 )
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+# 创建数据加载器
 train_dataloader = create_dagan_dataloader(
     raw_data, num_training_classes, train_transform, batch_size
 )
-
+# 优化器
 g_opt = optim.Adam(g.parameters(), lr=0.0001, betas=(0.0, 0.9))
 d_opt = optim.Adam(d.parameters(), lr=0.0001, betas=(0.0, 0.9))
 
@@ -77,7 +78,7 @@ flat_val_data = val_data.reshape(
 )
 
 display_transform = train_transform
-
+# 创建训练对象
 trainer = DaganTrainer(
     generator=g,
     discriminator=d,
@@ -93,7 +94,8 @@ trainer = DaganTrainer(
     display_transform=display_transform,
     should_display_generations=should_display_generations,
 )
+# 进行训练
 trainer.train(data_loader=train_dataloader, epochs=epochs, val_images=flat_val_data)
 
-# Save final generator model
+# Save final generator model 保存训练好的模型
 torch.save(trainer.g, final_generator_path)

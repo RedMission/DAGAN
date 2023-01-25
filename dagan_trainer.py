@@ -4,6 +4,7 @@ import torch
 import time
 import torch.nn as nn
 import torchvision.transforms as transforms
+# from PIL._imaging import display
 from torchvision.utils import make_grid
 from torch.autograd import Variable
 from torch.autograd import grad as torch_grad
@@ -47,6 +48,7 @@ class DaganTrainer:
         self.should_display_generations = should_display_generations
 
         # Track progress of fixed images throughout the training
+        # 在整个训练过程中跟踪固定映像的进度
         self.tracking_images = None
         self.tracking_z = None
         self.tracking_images_gens = None
@@ -56,35 +58,40 @@ class DaganTrainer:
 
     def _critic_train_iteration(self, x1, x2):
         """ """
-        # Get generated data
+        # Get generated data 生成器生成样本
         generated_data = self.sample_generator(x1)
-
+        # 判别真实样本对
         d_real = self.d(x1, x2)
+        # 判别生成样本对
         d_generated = self.d(x1, generated_data)
 
-        # Get gradient penalty
+        # Get gradient penalty 	获得梯度惩罚值
         gradient_penalty = self._gradient_penalty(x1, x2, generated_data)
+        # 记录梯度惩罚损失
         self.losses["GP"].append(gradient_penalty.item())
 
         # Create total loss and optimize
         self.d_opt.zero_grad()
+        # 计算判别损失、反向传播
         d_loss = d_generated.mean() - d_real.mean() + gradient_penalty
         d_loss.backward()
 
         self.d_opt.step()
 
-        # Record loss
+        # Record loss 记录判别损失
         self.losses["D"].append(d_loss.item())
 
     def _generator_train_iteration(self, x1):
         """ """
+        # 梯度清零
         self.g_opt.zero_grad()
 
-        # Get generated data
+        # Get generated data 获取生成数据
         generated_data = self.sample_generator(x1)
 
-        # Calculate loss and optimize
+        # Calculate loss and optimize 输入判别器计算
         d_generated = self.d(x1, generated_data)
+        # 获得生成损失、反向传播
         g_loss = -d_generated.mean()
         g_loss.backward()
         self.g_opt.step()
@@ -93,7 +100,7 @@ class DaganTrainer:
         self.losses["G"].append(g_loss.item())
 
     def _gradient_penalty(self, x1, x2, generated_data):
-        # Calculate interpolation
+        # Calculate interpolation 计算插值
         alpha = torch.rand(x1.shape[0], 1, 1, 1)
         alpha = alpha.expand_as(x2).to(self.device)
         interpolated = alpha * x2.data + (1 - alpha) * generated_data.data
@@ -125,13 +132,16 @@ class DaganTrainer:
 
     def _train_epoch(self, data_loader, val_images):
         for i, data in enumerate(data_loader):
+            # 到设定值就进行打印
             if i % self.print_every == 0:
                 print("Iteration {}".format(i))
                 self.print_progress(data_loader, val_images)
             self.num_steps += 1
             x1, x2 = data[0].to(self.device), data[1].to(self.device)
+            # 传到判别器进行迭代（每步都跑）
             self._critic_train_iteration(x1, x2)
             # Only update generator every |critic_iterations| iterations
+            # 到达设定要求才进行生成器迭代
             if self.num_steps % self.critic_iterations == 0:
                 self._generator_train_iteration(x1)
 
@@ -146,6 +156,7 @@ class DaganTrainer:
                 )
             )
             self.tracking_images = torch.stack(self.tracking_images).to(self.device)
+            # 噪声
             self.tracking_z = torch.randn((self.num_tracking_images, self.g.z_dim)).to(
                 self.device
             )
@@ -165,8 +176,11 @@ class DaganTrainer:
             self._save_checkpoint()
 
     def sample_generator(self, input_images, z=None):
+        # 生成伪造图像
         if z is None:
+            # 生成伪造图像
             z = torch.randn((input_images.shape[0], self.g.z_dim)).to(self.device)
+        # 返回生成器对象的生成
         return self.g(input_images, z)
 
     def render_img(self, arr):
@@ -178,7 +192,7 @@ class DaganTrainer:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", category=UserWarning)
             return [
-                self.display_transform(data_loader.dataset.x1_examples[idx])
+                self.display_transform(data_loader.dataset.x1_examples[idx]) #转为张量
                 for idx in torch.randint(0, len(data_loader.dataset), (n,))
             ]
 
@@ -225,6 +239,7 @@ class DaganTrainer:
             print("G: {}".format(self.losses["G"][-1]))
 
     def _save_checkpoint(self):
+        # 保存检查点
         if self.checkpoint_path is None:
             return
         checkpoint = {
@@ -241,6 +256,7 @@ class DaganTrainer:
         torch.save(checkpoint, self.checkpoint_path)
 
     def hydrate_checkpoint(self, checkpoint_path):
+        # 加载检查点
         checkpoint = torch.load(checkpoint_path, map_location=self.device)
         self.epoch = checkpoint["epoch"]
         self.num_steps = checkpoint["num_steps"]

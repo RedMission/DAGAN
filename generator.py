@@ -125,7 +125,7 @@ class _DecoderBlock(nn.Module):
 
         total_channels = pre_channels + in_channels
         for i in range(num_layers):
-            if self.should_pre_conv:
+            if self.should_pre_conv: # 判断是否需要pre层
                 self.add_module(
                     "pre_conv_t%d" % i,
                     _conv2d_transpose(
@@ -147,7 +147,7 @@ class _DecoderBlock(nn.Module):
             )
             total_channels += out_channels
 
-        if self.should_upscale:
+        if self.should_upscale: # 判断是否需要上采样
             total_channels -= pre_channels
             self.add_module(
                 "conv_t%d" % num_layers,
@@ -225,7 +225,7 @@ class Generator(nn.Module):
                 nn.Linear(self.z_dim, curr_dim * curr_dim * num_noise_filters),
             )
             self.z_channels.append(num_noise_filters)
-            num_noise_filters //= 2
+            num_noise_filters //= 2 # 噪声滤波器数量减半
 
         # Decoders
         for i in range(self.U_depth + 1):
