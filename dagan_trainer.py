@@ -4,13 +4,14 @@ import torch
 import time
 import torch.nn as nn
 import torchvision.transforms as transforms
-# from PIL._imaging import display
 from torchvision.utils import make_grid
 from torch.autograd import Variable
 from torch.autograd import grad as torch_grad
 from PIL import Image
 import PIL
 import warnings
+
+# from IPython.core.display import display
 
 
 class DaganTrainer:
@@ -22,7 +23,7 @@ class DaganTrainer:
         dis_optimizer,
         batch_size,
         device="cpu",
-        gp_weight=10,
+        gp_weight=10, # Penalty coefficient 按照经验取10
         critic_iterations=5,
         print_every=50,
         num_tracking_images=0,
@@ -48,16 +49,18 @@ class DaganTrainer:
         self.should_display_generations = should_display_generations
 
         # Track progress of fixed images throughout the training
-        # 在整个训练过程中跟踪固定映像的进度
+        # 在整个训练过程中，跟踪固定图像的进度
         self.tracking_images = None
         self.tracking_z = None
         self.tracking_images_gens = None
-
+        # 如果有检查点，从检查点加载模型
         if load_checkpoint_path:
             self.hydrate_checkpoint(load_checkpoint_path)
 
     def _critic_train_iteration(self, x1, x2):
-        """ """
+        """
+        判别器更新迭代
+        """
         # Get generated data 生成器生成样本
         generated_data = self.sample_generator(x1)
         # 判别真实样本对
@@ -82,7 +85,9 @@ class DaganTrainer:
         self.losses["D"].append(d_loss.item())
 
     def _generator_train_iteration(self, x1):
-        """ """
+        """
+        生成器更新迭代
+        """
         # 梯度清零
         self.g_opt.zero_grad()
 
@@ -101,9 +106,13 @@ class DaganTrainer:
 
     def _gradient_penalty(self, x1, x2, generated_data):
         # Calculate interpolation 计算插值
+        # alpha.size()=(x1.shape[0], 1, 1, 1)
         alpha = torch.rand(x1.shape[0], 1, 1, 1)
+        # 把一个alpha变成和x2一样形状的tensor
         alpha = alpha.expand_as(x2).to(self.device)
+        # （计算差距）生成数据-alpha*(x2-生成)
         interpolated = alpha * x2.data + (1 - alpha) * generated_data.data
+        # 转换为计算图的张量
         interpolated = Variable(interpolated, requires_grad=True).to(self.device)
 
         # Calculate probability of interpolated examples
@@ -132,16 +141,16 @@ class DaganTrainer:
 
     def _train_epoch(self, data_loader, val_images):
         for i, data in enumerate(data_loader):
-            # 到设定值就进行打印
+            # 到设定值就进行执行打印
             if i % self.print_every == 0:
                 print("Iteration {}".format(i))
                 self.print_progress(data_loader, val_images)
             self.num_steps += 1
             x1, x2 = data[0].to(self.device), data[1].to(self.device)
-            # 传到判别器进行迭代（每步都跑）
+            # 判别器进行迭代（每步都跑）
             self._critic_train_iteration(x1, x2)
             # Only update generator every |critic_iterations| iterations
-            # 到达设定要求才进行生成器迭代
+            # 到达设定要求才进行 生成器迭代
             if self.num_steps % self.critic_iterations == 0:
                 self._generator_train_iteration(x1)
 
@@ -186,7 +195,8 @@ class DaganTrainer:
     def render_img(self, arr):
         arr = (arr * 0.5) + 0.5
         arr = np.uint8(arr * 255)
-        display(Image.fromarray(arr, mode="L").transpose(PIL.Image.TRANSPOSE))
+        # 在终端可视化
+        print(Image.fromarray(arr, mode="L").transpose(PIL.Image.TRANSPOSE))
 
     def sample_train_images(self, n, data_loader):
         with warnings.catch_warnings():

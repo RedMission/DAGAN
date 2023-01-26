@@ -28,10 +28,12 @@ def create_dagan_dataloader(raw_data, num_classes, transform, batch_size):
     train_x2 = []
 
     for i in range(num_classes):
+        # 选择某类，列出来作为x2并打乱
         x2_data = list(raw_data[i])
         np.random.shuffle(x2_data)
+        # 将该类作为x1
         train_x1.extend(raw_data[i])
         train_x2.extend(x2_data)
-
+    # 实例化对象
     train_dataset = DaganDataset(train_x1, train_x2, transform)
     return DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=1)
