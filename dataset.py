@@ -29,6 +29,7 @@ def create_dagan_dataloader(raw_data, num_classes, transform, batch_size):
 
     for i in range(num_classes):
         # 选择某类，列出来作为x2并打乱
+        # 从此出可以看出将同标签数据存到了一个列表中
         x2_data = list(raw_data[i])
         np.random.shuffle(x2_data)
         # 将该类作为x1
