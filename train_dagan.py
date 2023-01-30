@@ -31,7 +31,7 @@ def main():
     load_checkpoint_path = args.load_checkpoint_path
     # 输入通道数
     in_channels = raw_data.shape[-1]
-    # 图像尺寸
+    # 找图像尺寸
     img_size = args.img_size or raw_data.shape[2]
     # 训练的类别数
     num_training_classes = args.num_training_classes
@@ -80,6 +80,7 @@ def main():
     g_opt = optim.Adam(g.parameters(), lr=0.0001, betas=(0.0, 0.9))
     d_opt = optim.Adam(d.parameters(), lr=0.0001, betas=(0.0, 0.9))
 
+    # 取测试的数据
     val_data = raw_data[num_training_classes : num_training_classes + num_val_classes]
     flat_val_data = val_data.reshape(
         (val_data.shape[0] * val_data.shape[1], *val_data.shape[2:])

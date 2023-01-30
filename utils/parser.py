@@ -39,14 +39,16 @@ def get_dagan_args():
         "--num_training_classes",
         nargs="?",
         type=int,
-        default=1200,
+        # default=1200,
+        default=80,
         help="Number of classes to use for training.",
     )
     parser.add_argument(
         "--num_val_classes",
         nargs="?",
         type=int,
-        default=200,
+        # default=200,
+        default=20,
         help="Number of classes to use for validation.",
     )
     parser.add_argument(
@@ -75,7 +77,7 @@ def get_dagan_args():
         "--load_checkpoint_path",
         nargs="?",
         type=str,
-        default="checkpoints\checkpoint.pt",
+        # default="checkpoints\checkpoint.pt",
         help="Filepath of intermediate checkpoint from which to resume training.",
     )
     parser.add_argument(
