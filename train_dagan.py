@@ -22,7 +22,7 @@ def main():
     # 加载数据集路径
     dataset_path = args.dataset_path
     # 加载数据
-    raw_data = np.load(dataset_path).copy()
+    raw_data = np.load(dataset_path,allow_pickle=True).copy()
     # 保存模型的位置
     final_generator_path = args.final_model_path
     # 保存检查点的位置

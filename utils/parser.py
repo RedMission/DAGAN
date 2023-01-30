@@ -9,7 +9,8 @@ def get_dagan_args():
     parser.add_argument(
         "--dataset_path",
         type=str,
-        default="datasets/omniglot_data.npy",
+        # default="datasets/omniglot_data.npy",
+        default="datasets/IITDdata.npy",
         help="Filepath for dataset on which to train dagan. File should be .npy format with shape "
         "(num_classes, samples_per_class, height, width, channels).",
     )
@@ -67,12 +68,14 @@ def get_dagan_args():
         "--save_checkpoint_path",
         nargs="?",
         type=str,
+        default="checkpoints\checkpoint.pt",
         help="Filepath to save intermediate training checkpoints.",
     )
     parser.add_argument(
         "--load_checkpoint_path",
         nargs="?",
         type=str,
+        default="checkpoints\checkpoint.pt",
         help="Filepath of intermediate checkpoint from which to resume training.",
     )
     parser.add_argument(
