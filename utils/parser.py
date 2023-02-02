@@ -25,7 +25,7 @@ def get_dagan_args():
         "--batch_size",
         nargs="?",
         type=int,
-        default=32,
+        default=16,
         help="batch_size for experiment",
     )
     parser.add_argument(
@@ -71,7 +71,7 @@ def get_dagan_args():
         "--save_checkpoint_path",
         nargs="?",
         type=str,
-        default="checkpoints/"+time.time()+"checkpoint.pt",
+        default="checkpoints/"+time.strftime("%Y%m%d-%H%M",time.localtime())+"checkpoint.pt",
         help="Filepath to save intermediate training checkpoints.",
     )
     parser.add_argument(
