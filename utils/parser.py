@@ -1,6 +1,5 @@
 import argparse
 
-
 def get_dagan_args():
     parser = argparse.ArgumentParser(
         description="Use this script to train a dagan.",
@@ -40,7 +39,7 @@ def get_dagan_args():
         nargs="?",
         type=int,
         # default=1200,
-        default=80,
+        default=184,
         help="Number of classes to use for training.",
     )
     parser.add_argument(
@@ -48,14 +47,14 @@ def get_dagan_args():
         nargs="?",
         type=int,
         # default=200,
-        default=20,
+        default=46,
         help="Number of classes to use for validation.",
     )
     parser.add_argument(
         "--epochs",
         nargs="?",
         type=int,
-        default=50,
+        default=100,
         help="Number of epochs to run training.",
     )
     parser.add_argument(

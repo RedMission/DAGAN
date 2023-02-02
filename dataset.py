@@ -37,4 +37,5 @@ def create_dagan_dataloader(raw_data, num_classes, transform, batch_size):
         train_x2.extend(x2_data)
     # 实例化对象
     train_dataset = DaganDataset(train_x1, train_x2, transform)
+    print("train_dataset长度：",train_dataset.__len__())
     return DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=1)

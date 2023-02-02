@@ -72,7 +72,7 @@ def main():
     )
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    # 创建数据加载器
+    # 创建训练数据加载器
     train_dataloader = create_dagan_dataloader(
         raw_data, num_training_classes, train_transform, batch_size
     )
@@ -103,7 +103,7 @@ def main():
         display_transform=display_transform,
         should_display_generations=should_display_generations,
     )
-    # 进行训练
+    # 进行训练 传入了测试数据
     trainer.train(data_loader=train_dataloader, epochs=epochs, val_images=flat_val_data)
 
     # Save final generator model 保存训练好的模型

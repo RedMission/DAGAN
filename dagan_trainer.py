@@ -155,6 +155,13 @@ class DaganTrainer:
                 self._generator_train_iteration(x1)
 
     def train(self, data_loader, epochs, val_images=None, save_training_gif=True):
+        '''
+        :param data_loader: 训练数据加载器
+        :param epochs:
+        :param val_images: 测试数据矩阵
+        :param save_training_gif:
+        :return:
+        '''
         if self.tracking_images is None and self.num_tracking_images > 0:
             self.tracking_images = self.sample_val_images(
                 self.num_tracking_images // 2, val_images
@@ -179,7 +186,7 @@ class DaganTrainer:
         while self.epoch < epochs:
             print("\nEpoch {}".format(self.epoch))
             print(f"Elapsed time: {(time.time() - start_time) / 60:.2f} minutes\n")
-
+            # 传入训练数据加载器和测试数据
             self._train_epoch(data_loader, val_images)
             self.epoch += 1
             self._save_checkpoint()
