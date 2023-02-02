@@ -1,4 +1,6 @@
 import argparse
+import time
+
 
 def get_dagan_args():
     parser = argparse.ArgumentParser(
@@ -69,7 +71,7 @@ def get_dagan_args():
         "--save_checkpoint_path",
         nargs="?",
         type=str,
-        default="checkpoints\checkpoint.pt",
+        default="checkpoints/"+time.time()+"checkpoint.pt",
         help="Filepath to save intermediate training checkpoints.",
     )
     parser.add_argument(

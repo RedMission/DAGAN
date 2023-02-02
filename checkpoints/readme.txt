@@ -1,3 +1,4 @@
 Store intermediate model checkpoints here
 软链接
-!ln -s 云盘/logs logs
+!rm -rf checkpoints
+!ln -s /content/drive/MyDrive/Colab_Notebooks/checkpoints/ checkpoints
