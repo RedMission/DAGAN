@@ -32,14 +32,15 @@ def display_generations(self, data_loader):
 
 if __name__ == '__main__':
     # 加载训练好的模型
-    g = torch.load("model_path/final_omniglot_generator.pt", map_location=torch.device('cpu'))
+    g = torch.load("model_path/IITD_20220202_generator.pt", map_location=torch.device('cpu'))
     # model.eval()不启用 BatchNormalization 和 Dropout，保证BN和dropout不发生变化，
     # pytorch框架会自动把BN和Dropout固定住，不会取平均，而是用训练好的值
     g.eval()
 
     # 加载数据
-    raw_data = np.load("datasets/omniglot_data.npy")
-    # raw_data = np.load("datasets/IITDdata.npy",allow_pickle=True).copy()
+    # raw_data = np.load("datasets/omniglot_data.npy")
+    # raw_data = np.load("datasets/IITDdata_right.npy", allow_pickle=True).copy()
+    raw_data = np.load("datasets/Tongji_session1.npy", allow_pickle=True).copy()
 
     z = torch.randn((1, g.z_dim))
     i = 5

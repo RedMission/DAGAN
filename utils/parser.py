@@ -11,7 +11,7 @@ def get_dagan_args():
         "--dataset_path",
         type=str,
         # default="datasets/omniglot_data.npy",
-        default="datasets/IITDdata.npy",
+        default="datasets/IITDdata_left.npy",
         help="Filepath for dataset on which to train dagan. File should be .npy format with shape "
         "(num_classes, samples_per_class, height, width, channels).",
     )
