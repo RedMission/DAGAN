@@ -34,7 +34,7 @@ class DaganTrainer:
         display_transform=None,
         should_display_generations=True,
          # tensorboard
-        writer=SummaryWriter('runs')
+        writer = None
     ):
         self.device = device
         self.g = generator.to(device)
