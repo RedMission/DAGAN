@@ -8,6 +8,7 @@ import torch
 import os
 import torch.optim as optim
 import numpy as np
+from torch.utils.tensorboard import SummaryWriter
 
 def main():
     # To maintain reproducibility
@@ -96,12 +97,13 @@ def main():
         batch_size=batch_size,
         device=device,
         critic_iterations=5,
-        print_every=75,
+        print_every=50,
         num_tracking_images=10,
         save_checkpoint_path=save_checkpoint_path,
         load_checkpoint_path=load_checkpoint_path,
         display_transform=display_transform,
         should_display_generations=should_display_generations,
+        writer=SummaryWriter('/runs')
     )
     # 进行训练 传入了测试数据
     trainer.train(data_loader=train_dataloader, epochs=epochs, val_images=flat_val_data)
