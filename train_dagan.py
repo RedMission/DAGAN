@@ -103,7 +103,7 @@ def main():
         load_checkpoint_path=load_checkpoint_path,
         display_transform=display_transform,
         should_display_generations=should_display_generations,
-        writer=SummaryWriter('runs')
+        writer = SummaryWriter('runs')
     )
     # 进行训练 传入了测试数据
     trainer.train(data_loader=train_dataloader, epochs=epochs, val_images=flat_val_data)
