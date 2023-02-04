@@ -88,6 +88,7 @@ def main():
     )
 
     display_transform = train_transform
+    writer = SummaryWriter('runs')
     # 创建训练对象
     trainer = DaganTrainer(
         generator=g,
@@ -103,7 +104,7 @@ def main():
         load_checkpoint_path=load_checkpoint_path,
         display_transform=display_transform,
         should_display_generations=should_display_generations,
-
+        writer = writer
     )
     # 进行训练 传入了测试数据
     trainer.train(data_loader=train_dataloader, epochs=epochs, val_images=flat_val_data)
