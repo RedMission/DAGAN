@@ -34,7 +34,7 @@ class DaganTrainer:
         display_transform=None,
         should_display_generations=True,
          # tensorboard
-        # writer=SummaryWriter('runs')
+        writer=SummaryWriter('runs')
     ):
         self.device = device
         self.g = generator.to(device)
@@ -51,7 +51,7 @@ class DaganTrainer:
         self.display_transform = display_transform or transforms.ToTensor()
         self.checkpoint_path = save_checkpoint_path
         self.should_display_generations = should_display_generations
-        self.writer = SummaryWriter('runs')
+        self.writer = writer
 
         # Track progress of fixed images throughout the training
         # 在整个训练过程中，跟踪固定图像的进度
