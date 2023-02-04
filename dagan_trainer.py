@@ -280,7 +280,7 @@ class DaganTrainer:
             "tracking_images": self.tracking_images,
             "tracking_z": self.tracking_z,
             "tracking_images_gens": self.tracking_images_gens,
-            "writer":self.writer
+            # "writer":self.writer
         }
         torch.save(checkpoint, self.checkpoint_path)
 
@@ -298,4 +298,4 @@ class DaganTrainer:
         self.tracking_images = checkpoint["tracking_images"]
         self.tracking_z = checkpoint["tracking_z"]
         self.tracking_images_gens = checkpoint["tracking_images_gens"]
-        self.writer = checkpoint["writer"]
+        # self.writer = checkpoint["writer"]
