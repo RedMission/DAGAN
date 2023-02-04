@@ -18,7 +18,7 @@ def get_dagan_args():
     parser.add_argument(
         "--final_model_path", type=str,
         # 保存整个模型
-        default="model_path/final_omniglot_generator.pt",
+        default="model_path/final_generator.pt",
         help="Filepath to save final dagan model."
     )
     parser.add_argument(

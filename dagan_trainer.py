@@ -11,6 +11,8 @@ from PIL import Image
 import PIL
 import warnings
 
+from torch.utils.tensorboard import SummaryWriter
+
 # from IPython.core.display import display
 
 
@@ -31,6 +33,8 @@ class DaganTrainer:
         load_checkpoint_path=None,
         display_transform=None,
         should_display_generations=True,
+         # tensorboard
+        writer = SummaryWriter('/runs')
     ):
         self.device = device
         self.g = generator.to(device)
@@ -47,6 +51,7 @@ class DaganTrainer:
         self.display_transform = display_transform or transforms.ToTensor()
         self.checkpoint_path = save_checkpoint_path
         self.should_display_generations = should_display_generations
+        self.writer = writer
 
         # Track progress of fixed images throughout the training
         # 在整个训练过程中，跟踪固定图像的进度
@@ -72,6 +77,7 @@ class DaganTrainer:
         gradient_penalty = self._gradient_penalty(x1, x2, generated_data)
         # 记录梯度惩罚损失
         self.losses["GP"].append(gradient_penalty.item())
+        self.writer.add_scalar('train/loss_GP', gradient_penalty.item(),self.num_steps)
 
         # Create total loss and optimize
         self.d_opt.zero_grad()
@@ -83,6 +89,8 @@ class DaganTrainer:
 
         # Record loss 记录判别损失
         self.losses["D"].append(d_loss.item())
+        self.writer.add_scalar('train/loss_D', d_loss.item(), self.num_steps)
+
 
     def _generator_train_iteration(self, x1):
         """
@@ -103,6 +111,8 @@ class DaganTrainer:
 
         # Record loss
         self.losses["G"].append(g_loss.item())
+        self.writer.add_scalar('train/loss_G', g_loss.item(), self.num_steps)
+
 
     def _gradient_penalty(self, x1, x2, generated_data):
         # Calculate interpolation 计算插值
@@ -131,6 +141,7 @@ class DaganTrainer:
         # so flatten to easily take norm per example in batch
         gradients = gradients.view(x1.shape[0], -1)
         self.losses["gradient_norm"].append(gradients.norm(2, dim=1).mean().item())
+        self.writer.add_scalar('train/loss_gradient_norm', gradients.norm(2, dim=1).mean().item())
 
         # Derivatives of the gradient close to 0 can cause problems because of
         # the square root, so manually calculate norm and add epsilon
@@ -203,7 +214,7 @@ class DaganTrainer:
         arr = (arr * 0.5) + 0.5
         arr = np.uint8(arr * 255)
         # 在终端可视化
-        display(Image.fromarray(arr, mode="L").transpose(PIL.Image.TRANSPOSE))
+        # display(Image.fromarray(arr, mode="L").transpose(PIL.Image.TRANSPOSE))
 
     def sample_train_images(self, n, data_loader):
         with warnings.catch_warnings():
