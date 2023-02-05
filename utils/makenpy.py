@@ -85,7 +85,7 @@ def getIITDFileArr(dir,name):
         ret_arr[label].append(result)
     # ret_arr = np.array(ret_arr, dtype=int)
     ret_arr = np.array(ret_arr)
-    np.save('datasets/'+name+".npy", ret_arr)
+    np.save('./datasets/'+name+".npy", ret_arr)
 def getTongjiFileArr(dir,name):
     label_list=[]
     # 文件与标签的映射
@@ -140,7 +140,7 @@ def getTongjiFileArr(dir,name):
         ret_arr[label].append(result)
     # ret_arr = np.array(ret_arr, dtype=int)
     ret_arr = np.array(ret_arr)
-    np.save('datasets/'+name+".npy", ret_arr)
+    np.save('./datasets/'+name+".npy", ret_arr)
 if __name__ == '__main__':
     # 单通道
     # 德里（230，6，150，150，1）
