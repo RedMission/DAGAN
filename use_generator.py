@@ -6,10 +6,8 @@ from matplotlib import pyplot as plt
 
 def render_img(arr):
     # 归一化
-    print("展示变换前：",arr)
     arr = (arr * 0.5) + 0.5
     arr = np.uint8(arr * 255)
-    print("展示变换后：",arr)
 
     # 转换格式为PIL.Image.Image
     img = Image.fromarray(arr, mode='L')
@@ -91,7 +89,7 @@ if __name__ == '__main__':
     print(new_data.shape)
 
     render_img(new_data[2][0].reshape(150,150))
-    render_img(new_data[2][-1].reshape(150,150))
+    render_img(new_data[2][6].reshape(150,150))
 
 
 
