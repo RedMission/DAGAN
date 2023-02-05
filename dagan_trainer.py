@@ -141,7 +141,7 @@ class DaganTrainer:
         # so flatten to easily take norm per example in batch
         gradients = gradients.view(x1.shape[0], -1)
         self.losses["gradient_norm"].append(gradients.norm(2, dim=1).mean().item())
-        self.writer.add_scalar('train/loss_gradient_norm', gradients.norm(2, dim=1).mean().item())
+        self.writer.add_scalar('train/loss_gradient_norm', gradients.norm(2, dim=1).mean().item(),self.num_steps)
 
         # Derivatives of the gradient close to 0 can cause problems because of
         # the square root, so manually calculate norm and add epsilon
