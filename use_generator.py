@@ -52,6 +52,8 @@ def generate_dataset(generator_sample_num):
     :param generator_sample_num: 要增加的样本数
     :return: 新的数据集
     '''
+    num = 0
+    generate_dataset = raw_data
     for num in range(generator_sample_num):
         # 0.切割一列出来
         raw_inps = raw_data[:, num,]
@@ -65,24 +67,24 @@ def generate_dataset(generator_sample_num):
         generate_dataset_arr = np.array(res_inps)
         # 3.合并npy 数据集形状： 增加维度，合并
         generate_dataset_arr = generate_dataset_arr[:, np.newaxis]
-        generate_dataset = np.concatenate((raw_data, generate_dataset_arr), axis=1)
+        generate_dataset = np.concatenate((generate_dataset, generate_dataset_arr), axis=1)
 
     return generate_dataset
 
 if __name__ == '__main__':
     # 加载训练好的模型
-    g = torch.load("model_path/IITD_20220202_generator.pt", map_location=torch.device('cpu'))
+    model_name = "IITD_230206_epoch100_generator.pt"
+    g = torch.load("model_path/" + model_name, map_location=torch.device('cpu'))
     # model.eval()不启用 BatchNormalization 和 Dropout，保证BN和dropout不发生变化，
     # pytorch框架会自动把BN和Dropout固定住，不会取平均，而是用训练好的值
     g.eval()
-
     # 加载数据
-    name = "IITDdata_right"
-    raw_data = np.load("datasets/"+ name +".npy", allow_pickle=True).copy()
+    data_name = "IITDdata_right"
+    raw_data = np.load("datasets/"+ data_name +".npy", allow_pickle=True).copy()
 
     # 噪声
     z = torch.randn((1, g.z_dim))
     generator_sample_num = 3
-    new_data = generate_dataset(2)
-    np.save('./datasets/'+name+"_gen_"+str(generator_sample_num)+".npy", new_data)
+    new_data = generate_dataset(generator_sample_num)
+    np.save('./datasets/'+data_name+"_"+str(generator_sample_num)+".npy", new_data)
 
