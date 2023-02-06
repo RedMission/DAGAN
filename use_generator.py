@@ -77,19 +77,12 @@ if __name__ == '__main__':
     g.eval()
 
     # 加载数据
-    # raw_data = np.load("datasets/omniglot_data.npy")
-    raw_data = np.load("datasets/IITDdata_right.npy", allow_pickle=True).copy()
-    # raw_data = np.load("datasets/Tongji_session1.npy", allow_pickle=True).copy()
+    name = "IITDdata_right"
+    raw_data = np.load("datasets/"+ name +".npy", allow_pickle=True).copy()
+
     # 噪声
     z = torch.randn((1, g.z_dim))
-    # render_img(raw_inp.reshape(150,150))
-
     generator_sample_num = 3
     new_data = generate_dataset(2)
-    print(new_data.shape)
-
-    render_img(new_data[2][0].reshape(150,150))
-    render_img(new_data[2][6].reshape(150,150))
-
-
+    np.save('./datasets/'+name+"_gen_"+str(generator_sample_num)+".npy", new_data)
 
