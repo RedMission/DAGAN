@@ -79,7 +79,7 @@ if __name__ == '__main__':
     # pytorch框架会自动把BN和Dropout固定住，不会取平均，而是用训练好的值
     g.eval()
     # 加载数据
-    data_name = "IITDdata_right"
+    data_name = "IITDdata_left"
     raw_data = np.load("datasets/"+ data_name +".npy", allow_pickle=True).copy()
 
     # 噪声
