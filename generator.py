@@ -306,3 +306,8 @@ class Generator(nn.Module):
         for i in range(self.num_final_conv):
             curr_input = self._modules["final_conv%d" % i](curr_input)
         return self.tanh(curr_input)
+
+
+if __name__ == '__main__':
+    g = Generator(dim=84, channels=1, dropout_rate=0.5)
+    print(g)

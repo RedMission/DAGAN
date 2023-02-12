@@ -191,3 +191,7 @@ class Discriminator(nn.Module):
         out = self.dense2(torch.cat([out, out_flat], 1))
 
         return out
+
+if __name__ == '__main__':
+    d = Discriminator(dim=84, channels=1 * 2, dropout_rate=0.5)
+    print(d)

@@ -10,6 +10,7 @@ import torch.optim as optim
 import numpy as np
 from torch.utils.tensorboard import SummaryWriter
 
+
 def main():
     # To maintain reproducibility
     torch.manual_seed(0)
@@ -23,7 +24,7 @@ def main():
     # 加载数据集路径
     dataset_path = args.dataset_path
     # 加载数据
-    raw_data = np.load(dataset_path,allow_pickle=True).copy()
+    raw_data = np.load(dataset_path, allow_pickle=True).copy()
     # 保存模型的位置
     final_generator_path = args.final_model_path
     # 保存检查点的位置
@@ -56,7 +57,6 @@ def main():
             % (num_training_classes + num_val_classes, raw_data.shape[0])
         )
 
-
     g = Generator(dim=img_size, channels=in_channels, dropout_rate=dropout_rate)
     d = Discriminator(dim=img_size, channels=in_channels * 2, dropout_rate=dropout_rate)
 
@@ -82,7 +82,7 @@ def main():
     d_opt = optim.Adam(d.parameters(), lr=0.0001, betas=(0.0, 0.9))
 
     # 取测试的数据
-    val_data = raw_data[num_training_classes : num_training_classes + num_val_classes]
+    val_data = raw_data[num_training_classes: num_training_classes + num_val_classes]
     flat_val_data = val_data.reshape(
         (val_data.shape[0] * val_data.shape[1], *val_data.shape[2:])
     )
@@ -104,7 +104,7 @@ def main():
         load_checkpoint_path=load_checkpoint_path,
         display_transform=display_transform,
         should_display_generations=should_display_generations,
-        writer = writer
+        writer=writer
     )
     # 进行训练 传入了测试数据
     trainer.train(data_loader=train_dataloader, epochs=epochs, val_images=flat_val_data)
@@ -112,5 +112,6 @@ def main():
     # Save final generator model 保存训练好的模型
     torch.save(trainer.g, final_generator_path)
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     main()

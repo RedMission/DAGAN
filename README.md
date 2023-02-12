@@ -15,7 +15,7 @@
 	1. [DAGAN Training Process](#dagan_train)
 	2. [Classifier Training Process](#classifier_train)
 	3. [Architectures](#architectures)
-6. [Acknowledgements](#acknowledgements)
+
 
 ## 1. Intro <a name="intro"></a>
 
@@ -100,13 +100,4 @@ The discriminator is a DenseNet with 4 blocks, each containing 4 conv layers.
 
 The omniglot classifier uses the [standard PyTorch DenseNet implementation](https://pytorch.org/hub/pytorch_vision_densenet/) with 4 blocks, each having 3 conv layers. The last layer of the classifier was concatenated with a 0/1 flag representing whether a given input was real or generated. This was followed by 2 dense layers before outputting the final classification probabilities. This was useful to allow the image features output from the last layer of the DenseNet to interact with the real/generated flag in order to produce more accurate predictions.
 
-
-## 6. Acknowledgements <a name="acknowledgements"></a>
-
-- As mentioned earlier, this work was adopted from [this paper](https://arxiv.org/abs/1711.04340) and [this repo](https://github.com/AntreasAntoniou/DAGAN) by A. Antoniou et al.
-
-- The omniglot dataset was originally sourced from [this github repo](https://github.com/brendenlake/omniglot/) by user [brendanlake](https://github.com/brendenlake).
-
-- The PyTorch Wasserstein GAN (WGAN) implementation in this repo was closely adopted from [this repo](https://github.com/EmilienDupont/wgan-gp) by user [EmilienDupont](https://github.com/EmilienDupont/).
-
-
+    
