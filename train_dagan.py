@@ -10,7 +10,6 @@ import torch.optim as optim
 import numpy as np
 from torch.utils.tensorboard import SummaryWriter
 
-
 def main():
     # To maintain reproducibility
     torch.manual_seed(0)

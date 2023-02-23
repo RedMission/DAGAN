@@ -84,7 +84,7 @@ if __name__ == '__main__':
 
     # 噪声
     z = torch.randn((1, g.z_dim))
-    generator_sample_num = 3
+    generator_sample_num = 6
     new_data = generate_dataset(generator_sample_num)
-    np.save('./datasets/'+data_name+"_"+str(generator_sample_num)+".npy", new_data)
+    np.save('datasets/'+data_name+"_"+str(generator_sample_num)+".npy", new_data)
 

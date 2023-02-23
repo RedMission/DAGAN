@@ -140,7 +140,7 @@ def getTongjiFileArr(dir,name):
         ret_arr[label].append(result)
     # ret_arr = np.array(ret_arr, dtype=int)
     ret_arr = np.array(ret_arr)
-    np.save('./datasets/'+name+".npy", ret_arr)
+    np.save('F:\jupyter_notebook\DAGAN\datasets/'+name+".npy", ret_arr)
 if __name__ == '__main__':
     # 单通道
     # 德里（230，6，150，150，1）
@@ -150,8 +150,8 @@ if __name__ == '__main__':
     # getIITDFileArr(dir,name)
 
     # 同济（600，10）
-    dir = "E:\Documents\Matlab_work\DataBase\Tongji_ROI\session1"
-    name="Tongji_session1"
+    dir = "E:\Documents\Matlab_work\DataBase\Tongji_ROI\session2"
+    name="Tongji_session2"
     getTongjiFileArr(dir,name)
 
     # 香港理工（100，6）

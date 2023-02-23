@@ -10,22 +10,22 @@ def get_dagan_args():
     parser.add_argument(
         "--dataset_path",
         type=str,
-        # default="datasets/omniglot_data.npy",
         default="datasets/IITDdata_left.npy",
+        # default="datasets/Tongji_session1.npy",
         help="Filepath for dataset on which to train dagan. File should be .npy format with shape "
         "(num_classes, samples_per_class, height, width, channels).",
     )
     parser.add_argument(
         "--final_model_path", type=str,
         # 保存整个模型
-        default="model_path/final_generator.pt",
+        default="model_path/final_IITD_l_generator.pt",
         help="Filepath to save final dagan model."
     )
     parser.add_argument(
         "--batch_size",
         nargs="?",
         type=int,
-        default=16,
+        default=8,
         help="batch_size for experiment",
     )
     parser.add_argument(
@@ -42,6 +42,7 @@ def get_dagan_args():
         type=int,
         # default=1200,
         default=184,
+        # default=480,
         help="Number of classes to use for training.",
     )
     parser.add_argument(
@@ -50,6 +51,7 @@ def get_dagan_args():
         type=int,
         # default=200,
         default=46,
+        # default=120,
         help="Number of classes to use for validation.",
     )
     parser.add_argument(
@@ -78,7 +80,7 @@ def get_dagan_args():
         "--load_checkpoint_path",
         nargs="?",
         type=str,
-        # default="checkpoints\checkpoint.pt",
+        # default="checkpoints/oint.pt",
         help="Filepath of intermediate checkpoint from which to resume training.",
     )
     parser.add_argument(
