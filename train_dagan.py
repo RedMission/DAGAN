@@ -97,7 +97,7 @@ def main():
         batch_size=batch_size,
         device=device,
         critic_iterations=5,
-        print_every=50,
+        print_every=500,
         num_tracking_images=10,
         save_checkpoint_path=save_checkpoint_path,
         load_checkpoint_path=load_checkpoint_path,
