@@ -221,8 +221,8 @@ class DaganTrainer:
         # 定义 ToTensor 转换
         to_tensor = transforms.ToTensor()
         # 将 PIL Image 转换为 torch 张量
-        tensor = to_tensor(img).view(1, 1, 1800, 150)
-        self.writer.add_images('images', tensor, self.num_steps)
+        # tensor = to_tensor(img).view(1, 1, 1800, 150)
+        # self.writer.add_images('images', tensor, self.num_steps)
 
     def sample_train_images(self, n, data_loader):
         with warnings.catch_warnings():

@@ -2,69 +2,74 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-class PAM(nn.Module):
-    def __init__(self, in_channels, out_channels, num_levels=3, conv_kernel_size=1, pool_kernel_size=3):
-        super(PAM, self).__init__()
-        self.num_levels = num_levels
-        self.conv_channels = out_channels // 2
 
-        self.query_conv = nn.Conv2d(in_channels, self.conv_channels, kernel_size=conv_kernel_size)
-        self.key_conv = nn.Conv2d(in_channels, self.conv_channels, kernel_size=conv_kernel_size)
-        self.value_conv = nn.Conv2d(in_channels, out_channels, kernel_size=conv_kernel_size)
+class PyramidSplitAttention(nn.Module):
+    def __init__(self, in_channels, out_channels=None, scales=[3, 6]):
+        super(PyramidSplitAttention, self).__init__()
+        self.out_channels = out_channels
+        self.scales = scales
+        self.num_scales = len(scales)
 
-        self.max_pool = nn.MaxPool2d(pool_kernel_size, stride=2, padding=1)
+        if out_channels is None:
+            self.out_channels = in_channels // 4
 
-        self.conv_bn = nn.BatchNorm2d(out_channels)
+        self.query_conv = nn.Conv2d(in_channels, self.out_channels, kernel_size=1)
+        self.key_conv = nn.ModuleList([nn.Conv2d(in_channels, self.out_channels, kernel_size=1) for _ in range(self.num_scales)])
+        self.value_conv = nn.ModuleList([nn.Conv2d(in_channels, self.out_channels, kernel_size=1) for _ in range(self.num_scales)])
+        self.gamma = nn.Parameter(torch.zeros(1))
+        self.conv = nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=1, padding=0)
+
+        self.conv_concat = nn.Conv2d(self.out_channels, self.out_channels, kernel_size=1)
+        self.bn = nn.BatchNorm2d(self.out_channels)
+        self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x):
         batch_size, channels, height, width = x.size()
-        # 计算金字塔切分的大小和位置
-        sizes = [(height // (2 ** i), width // (2 ** i)) for i in range(self.num_levels)]
-        centers = [(height // (2 ** i) // 2, width // (2 ** i) // 2) for i in range(self.num_levels)]
 
-        # 生成金字塔切分
+        # Calculate query, key, value
         query = self.query_conv(x)
-        key = self.key_conv(x)
-        value = self.value_conv(x)
-        # F.interpolate 实现上 / 下采样操作
-        queries = [F.interpolate(query, size=s, mode='bilinear', align_corners=True) for s in sizes]
-        keys = [F.interpolate(key, size=s, mode='bilinear', align_corners=True) for s in sizes]
-        values = [F.interpolate(value, size=s, mode='bilinear', align_corners=True) for s in sizes]
+        keys, values = [], []
+        for i in range(self.num_scales):
+            scale_factor = self.scales[i]
+            h, w = height // scale_factor, width // scale_factor
+            x_level = F.interpolate(x, size=(h, w), mode="bilinear", align_corners=True)
+            key = self.key_conv[i](x_level)
+            value = self.value_conv[i](x_level)
+            keys.append(key.view(batch_size, -1, h * w))
+            values.append(value.view(batch_size, -1, h * w))
 
-        # 计算注意力权重
-        attention_maps = []
-        for i in range(self.num_levels):
-            q = queries[i]
-            k = keys[i]
-            v = values[i]
+        # Concatenate keys and values across scales
+        keys = torch.cat(keys, dim=2)
+        values = torch.cat(values, dim=2)
 
-            score = torch.matmul(q.view(batch_size, self.conv_channels, -1).permute(0, 2, 1), k.view(batch_size, self.conv_channels, -1))
-            attention = F.softmax(score, dim=2)
+        # Calculate attention map and weighted values
+        energy = torch.bmm(query.view(batch_size, -1, height * width).permute(0, 2, 1), keys)
+        attention = F.softmax(energy, dim=-1)
+        attention = attention / (1e-9 + attention.sum(dim=2, keepdim=True))
+        weighted_values = torch.bmm(values, attention.permute(0, 2, 1))
+        weighted_values = weighted_values.view(batch_size, -1, height, width)
 
-            attention_maps.append(attention)
+        # Apply transformations and concatenate across scales
+        x = self.conv(x)
+        out = self.gamma * weighted_values + x
+        out = self.conv_concat(out)
+        out = self.bn(out)
+        out = self.relu(out)
 
-        # 将注意力权重应用于金字塔切分
-        pyramid = []
-        for i in range(self.num_levels):
-            v = values[i]
-            a = attention_maps[i]
-
-            w = torch.matmul(a, v.view(batch_size, self.conv_channels, -1).permute(0, 2, 1))
-            w = w.permute(0, 2, 1).contiguous().view(batch_size, self.conv_channels, sizes[i][0], sizes[i][1])
-
-            pyramid.append(w)
-
-        # 级联金字塔切分
-        merged = torch.cat(pyramid, dim=1)
-
-        # 应用卷积层
-        merged = self.conv_bn(merged)
-        return merged
+        return out
 
 if __name__ == '__main__':
-    test = PAM(1, 16)
-    x = torch.randn(1,1,32,32)
-    print(x)
-    y = test(x)
-    print("-------------")
-    print(y)
+    # test PyramidAttentionModule with random input
+    batch_size = 16
+    in_channels = 128
+    out_channels = 64
+    height = 64
+    width = 64
+    num_levels = 3
+
+    input_tensor = torch.randn(batch_size, in_channels, height, width)
+    pam = PyramidSplitAttention(in_channels, out_channels)
+    output_tensor = pam(input_tensor)
+
+    print("Input tensor shape:", input_tensor.shape)
+    print("Output tensor shape:", output_tensor.shape)
