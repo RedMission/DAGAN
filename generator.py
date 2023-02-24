@@ -185,7 +185,7 @@ class Generator(nn.Module):
     def __init__(self, dim, channels, dropout_rate=0.0, z_dim=100):
         super().__init__()
         self.dim = dim
-        self.z_dim = z_dim
+        self.z_dim = dim
         self.channels = channels
         self.layer_sizes = [64, 64, 128, 128]
         self.num_inner_layers = 3

@@ -33,8 +33,8 @@ def main():
     # 输入通道数
     in_channels = raw_data.shape[-1]
     # 找图像尺寸
-    # img_size = args.img_size or raw_data.shape[2]
-    img_size = 84
+    img_size = args.img_size or raw_data.shape[2]
+    # img_size = 84
     # 训练的类别数
     num_training_classes = args.num_training_classes
     # 测试的类别数

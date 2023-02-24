@@ -2,7 +2,8 @@ import numpy as np
 import torch
 import torchvision.transforms as transforms
 from PIL import Image
-from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt, pyplot
+
 
 def render_img(arr):
     # 归一化
@@ -73,7 +74,7 @@ def generate_dataset(generator_sample_num):
 
 if __name__ == '__main__':
     # 加载训练好的模型
-    model_name = "IITD_230206_epoch100_generator.pt"
+    model_name = "IITD_230224_PSA_generator.pt"
     g = torch.load("model_path/" + model_name, map_location=torch.device('cpu'))
     # model.eval()不启用 BatchNormalization 和 Dropout，保证BN和dropout不发生变化，
     # pytorch框架会自动把BN和Dropout固定住，不会取平均，而是用训练好的值
@@ -81,10 +82,26 @@ if __name__ == '__main__':
     # 加载数据
     data_name = "IITDdata_left"
     raw_data = np.load("datasets/"+ data_name +".npy", allow_pickle=True).copy()
-
+    # print(g.z_dim) # 100
+    # print(g.dim) # 84
     # 噪声
     z = torch.randn((1, g.z_dim))
     generator_sample_num = 6
     new_data = generate_dataset(generator_sample_num)
-    np.save('datasets/'+data_name+"_"+str(generator_sample_num)+".npy", new_data)
+    np.save('datasets/'+data_name+"_"+str(generator_sample_num)+"_PSA.npy", new_data)
+
+    # # 单独生成，查看效果
+    # raw_inp = raw_data[1][1]
+    # # raw = np.squeeze(raw_inp)
+    # # render_img((raw))
+    #
+    # # # 1.转换成张量
+    # # inp = display_transform(raw_inp)
+    # # # 2.利用模型生成张量
+    # with torch.no_grad():
+    #     res = g(raw_inp, z)[0]
+    # # # 3.张量转成数组
+    # test_raw = res.numpy()
+
+
 
