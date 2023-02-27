@@ -149,13 +149,13 @@ class _EncoderBlock(nn.Module):
             out_size=out_size,
         )
         total_channels = in_channels + out_channels
-        # self.conv1 = PyramidSplitAttention(
-        #     in_channels=total_channels,
-        #     out_channels=out_channels,
-        # )
-        # total_channels += out_channels  # 通道数在增加
+        self.conv1 = PyramidSplitAttention(
+            in_channels=total_channels,
+            out_channels=out_channels,
+        )
+        total_channels += out_channels  # 通道数在增加
 
-        for i in range(1, num_layers): # 循环加卷积层
+        for i in range(2, num_layers): # 循环加卷积层
             self.add_module(
                 "conv%d" % i,
                 _conv2d(
