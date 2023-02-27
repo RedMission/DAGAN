@@ -25,7 +25,7 @@ def get_dagan_args():
         "--batch_size",
         nargs="?",
         type=int,
-        default=16,
+        default=6,
         help="batch_size for experiment",
     )
     parser.add_argument(
