@@ -64,7 +64,7 @@ def main():
     train_transform = transforms.Compose(
         [
             transforms.ToPILImage(),
-            transforms.Resize(img_size),# 图像尺寸太大会内存溢出
+            transforms.Resize(img_size), # 图像尺寸太大会内存溢出
             transforms.ToTensor(),
             transforms.Normalize(
                 (mid_pixel_value,) * in_channels, (mid_pixel_value,) * in_channels
