@@ -18,11 +18,25 @@ def render_img(arr):
 def display_transform(img):
     transform = transforms.Compose([
         transforms.ToPILImage(),
-        transforms.Resize(g.dim),
+        # transforms.Resize(g.dim), # 调整格式
+        transforms.Resize(g.dim), # 调整格式
         transforms.ToTensor(),
         transforms.Normalize((0.5), (0.5))
     ])
     return transform(img)
+
+def norm_transform(img):
+    transform = transforms.Compose([
+        transforms.ToPILImage(),
+        # transforms.Resize(g.dim), # 调整格式
+        transforms.Resize(g.dim), # 调整格式
+        transforms.ToTensor(),
+        transforms.Normalize((0.5), (0.5))
+    ])
+    img = transform(img).numpy()
+    img = img.reshape(img.shape[1], img.shape[2], 1)
+    return  img
+
 
 def display_generations(self, data_loader):
     train_idx = torch.randint(0, len(data_loader.dataset), (1,))[0]
@@ -37,7 +51,7 @@ def display_generations(self, data_loader):
 def generate_arr(raw_inp):
     '''
     :param raw_inp: 输入的array
-    :return: 生成的array [150,150,1]
+    :return: 生成的格式为array [150,150,1]的模拟图像
     '''
     # 1.转换成张量
     inp = display_transform(raw_inp)
@@ -53,55 +67,52 @@ def generate_dataset(generator_sample_num):
     :param generator_sample_num: 要增加的样本数
     :return: 新的数据集
     '''
-    num = 0
-    generate_dataset = raw_data
-    for num in range(generator_sample_num):
+    generate_dataset = np.array([generate_arr(c) for c in raw_data[:,0,]])[:, np.newaxis]
+    for num in range(1,generator_sample_num):
         # 0.切割一列出来
-        raw_inps = raw_data[:, num,]
-        num += 1
-        # 1.每个类别的都取出一张进行生成张量
-        res_inps = []  # 修改保存类
-        for i in range(raw_inps.shape[0]):
-            res_inp = generate_arr(raw_inps[i])
-            res_inps.append(res_inp)
-        # 2.将生成的存到一个矩阵中
-        generate_dataset_arr = np.array(res_inps)
-        # 3.合并npy 数据集形状： 增加维度，合并
+        raw_inps = raw_data[:,num,]
+        # # 1.每个类别的都取出一张进行生成张量
+        #  取单个图片放入训练好的模型
+        # # 2.将生成的存到一个矩阵中
+        generate_dataset_arr = np.array([generate_arr(c) for c in raw_inps])
+        # 3.合并npy 数据集形状：np.newaxis增加维度，合并【修改原始矩阵大小！】
         generate_dataset_arr = generate_dataset_arr[:, np.newaxis]
+        # print(generate_dataset_arr.shape) # (230, 1, 150, 150, 1)
+        generate_dataset = np.concatenate((generate_dataset, generate_dataset_arr), axis=1)
+        print("---",generate_dataset.shape)
+
+    for num in range(0,raw_data.shape[1]):
+        # 修改原始图像形状
+        raw_inps = raw_data[:, num, ]
+        generate_dataset_arr = np.array([norm_transform(c) for c in raw_inps])[:, np.newaxis]
+        print(generate_dataset.shape)
+        print(generate_dataset_arr.shape)
         generate_dataset = np.concatenate((generate_dataset, generate_dataset_arr), axis=1)
 
     return generate_dataset
 
 if __name__ == '__main__':
     # 加载训练好的模型
-    model_name = "IITD_230224_PSA_generator.pt"
+    model_name = "IITD_230206_epoch100_generator.pt"
     g = torch.load("model_path/" + model_name, map_location=torch.device('cpu'))
     # model.eval()不启用 BatchNormalization 和 Dropout，保证BN和dropout不发生变化，
     # pytorch框架会自动把BN和Dropout固定住，不会取平均，而是用训练好的值
     g.eval()
+
     # 加载数据
     data_name = "IITDdata_left"
     raw_data = np.load("datasets/"+ data_name +".npy", allow_pickle=True).copy()
     # print(g.z_dim) # 100
-    # print(g.dim) # 84
+    print(g.dim) # 84
     # 噪声
     z = torch.randn((1, g.z_dim))
-    generator_sample_num = 6
+    generator_sample_num = 3
     new_data = generate_dataset(generator_sample_num)
-    np.save('datasets/'+data_name+"_"+str(generator_sample_num)+"_PSA.npy", new_data)
+    print(new_data.shape)
+    print(new_data[0].shape)
+    np.save('datasets/'+data_name+"_"+str(generator_sample_num)+""+".npy", new_data)
 
-    # # 单独生成，查看效果
-    # raw_inp = raw_data[1][1]
-    # # raw = np.squeeze(raw_inp)
-    # # render_img((raw))
-    #
-    # # # 1.转换成张量
-    # # inp = display_transform(raw_inp)
-    # # # 2.利用模型生成张量
-    # with torch.no_grad():
-    #     res = g(raw_inp, z)[0]
-    # # # 3.张量转成数组
-    # test_raw = res.numpy()
+
 
 
 
