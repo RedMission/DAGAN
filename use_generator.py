@@ -79,21 +79,18 @@ def generate_dataset(generator_sample_num):
         generate_dataset_arr = generate_dataset_arr[:, np.newaxis]
         # print(generate_dataset_arr.shape) # (230, 1, 150, 150, 1)
         generate_dataset = np.concatenate((generate_dataset, generate_dataset_arr), axis=1)
-        print("---",generate_dataset.shape)
 
     for num in range(0,raw_data.shape[1]):
         # 修改原始图像形状
         raw_inps = raw_data[:, num, ]
         generate_dataset_arr = np.array([norm_transform(c) for c in raw_inps])[:, np.newaxis]
-        print(generate_dataset.shape)
-        print(generate_dataset_arr.shape)
         generate_dataset = np.concatenate((generate_dataset, generate_dataset_arr), axis=1)
 
     return generate_dataset
 
 if __name__ == '__main__':
     # 加载训练好的模型
-    model_name = "IITD_230206_epoch100_generator.pt"
+    model_name = "IITD_230227_PSA_epoch100_l_generator.pt"
     g = torch.load("model_path/" + model_name, map_location=torch.device('cpu'))
     # model.eval()不启用 BatchNormalization 和 Dropout，保证BN和dropout不发生变化，
     # pytorch框架会自动把BN和Dropout固定住，不会取平均，而是用训练好的值
@@ -103,14 +100,13 @@ if __name__ == '__main__':
     data_name = "IITDdata_left"
     raw_data = np.load("datasets/"+ data_name +".npy", allow_pickle=True).copy()
     # print(g.z_dim) # 100
-    print(g.dim) # 84
+    # print(g.dim) # 84
     # 噪声
     z = torch.randn((1, g.z_dim))
-    generator_sample_num = 3
+    generator_sample_num = 6
     new_data = generate_dataset(generator_sample_num)
-    print(new_data.shape)
-    print(new_data[0].shape)
-    np.save('datasets/'+data_name+"_"+str(generator_sample_num)+""+".npy", new_data)
+    print("已生成扩充数据：",new_data.shape)
+    np.save('datasets/'+data_name+"_"+"PSA_"+str(generator_sample_num)+".npy", new_data)
 
 
 
