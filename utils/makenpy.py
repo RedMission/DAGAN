@@ -45,9 +45,10 @@ def getIITDFileArr(dir,name):
             img_arr=np.concatenate((r_arr,g_arr,b_arr))
             result=np.concatenate((result,img_arr))
             result=result.reshape((img.size[0], img.size[1],3))
-        img_arr=np.array(img).reshape(img.size[0]*img.size[1])
-        result=np.concatenate((result,img_arr))
-        result = result.reshape((img.size[0], img.size[1], 1))
+        else:
+            img_arr=np.array(img).reshape(img.size[0]*img.size[1])
+            result=np.concatenate((result,img_arr))
+            result = result.reshape((img.size[0], img.size[1], 1))
         # 归一化
         result=result/255.0
         # 映射文件与归一化后文件
@@ -158,3 +159,6 @@ if __name__ == '__main__':
     # dir = "E:\Documents\Matlab_work\DataBase\PolyUROI"
     # 彩色
     # dir = "E:\Documents\Matlab_work\DataBase\COEP"
+
+    # img = Image.open("E:\Documents\Matlab_work\DataBase\Tongji_ROI\session1/00001.bmp")
+    # print(img.mode)

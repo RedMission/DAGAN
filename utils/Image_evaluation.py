@@ -62,12 +62,12 @@ def cal_FID(generated_images,real_images):
     print(f'FID: {fid}')
     return
 
-def get_inception_score(images, device, batch_size=32, resize=True, splits=10):
+def get_inception_score(images, device, batch_size=32, splits=5):
     """
     计算Inception Score
 
     Args:
-        images: torch.Tensor, 图像数据张量，维度为(N, C, H, W)，范围[0, 1] 初步猜测应该是将所有生成图像（抹去类别）排列输入
+        images: torch.Tensor, 图像数据张量，维度为(N, C, H, W)，范围[0, 1] 初步猜测应该是将所有生成图像（抹去类别）排列输入;
         device: str or torch.device, 使用的设备
         batch_size: int, 计算Inception Score时的批大小
         resize: bool, 是否对图像进行缩放到(299, 299)
@@ -79,16 +79,16 @@ def get_inception_score(images, device, batch_size=32, resize=True, splits=10):
     # 加载预训练的Inception v3模型
     # inception_model = torch.hub.load('pytorch/vision:v0.9.0', 'inception_v3', pretrained=True)
     inception_model = models.inception_v3(pretrained=True, transform_input=False)
+    if images.shape[1]==1:
+        # 网络原始参数要求图像是3通道,找到需要修改的卷积层并修改其权值
+        for name, param in inception_model.named_parameters():
+            if 'Conv2d_1a_3x3.conv.weight' in name:
+                conv_weight = param.data
+                new_conv_weight = torch.mean(conv_weight, dim=1, keepdim=True).repeat(1, 1, 1, 1)
+                inception_model.Conv2d_1a_3x3.conv.weight.data = new_conv_weight
 
     inception_model.to(device)
     inception_model.eval()
-
-    # 定义变换
-    transform = transforms.Compose([
-        transforms.ToPILImage(),
-        # transforms.Resize((3, 3)),
-        transforms.ToTensor(),
-    ])
 
     # 定义数据加载器
     data_loader = DataLoader(images, batch_size=batch_size)
@@ -124,6 +124,6 @@ if __name__ == '__main__':
     real_images = raw_data[:, int(num):, ]
     # cal_FID(generated_images,real_images) # 越小越相似
     print(generated_images.shape)
-    aa = np.reshape(generated_images, (-1,84,84,1), order='C')
+    aa = np.reshape(generated_images, (-1,1,84,84), order='C')
 
     get_inception_score(aa,'cuda')
