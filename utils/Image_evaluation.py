@@ -5,10 +5,10 @@ from scipy import linalg
 import torch.nn.functional as F
 import torchvision.models as models
 from torch.utils.data import DataLoader
+from skimage.metrics import structural_similarity as ssim
 
 # 定义预处理操作
 from scipy.stats import entropy
-
 
 def preprocess(img):
     process = transforms.Compose([
@@ -42,7 +42,7 @@ def calculate_frechet_distance(mu1, sigma1, mu2, sigma2, eps=1e-6):
     tr_covmean = np.trace(covmean)
     return diff.dot(diff) + np.trace(sigma1) + np.trace(sigma2) - 2 * tr_covmean
 
-def cal_FID(generated_images,real_images):
+def get_FID(generated_images,real_images):
     # 对生成的图像和真实图像进行预处理 stack拼接
     generated_images = torch.stack([preprocess(np.squeeze(image))
                                     for images_class in generated_images for image in images_class])
@@ -76,8 +76,10 @@ def get_inception_score(images, device, batch_size=32, splits=5):
     Returns:
         inception_score: float, 计算得到的Inception Score
     """
+    # 将所有生成图像（抹去类别）排列输入;
+    images = np.reshape(images, (-1,images.shape[-1],images.shape[2],images.shape[3]), order='C')
+
     # 加载预训练的Inception v3模型
-    # inception_model = torch.hub.load('pytorch/vision:v0.9.0', 'inception_v3', pretrained=True)
     inception_model = models.inception_v3(pretrained=True, transform_input=False)
     if images.shape[1]==1:
         # 网络原始参数要求图像是3通道,找到需要修改的卷积层并修改其权值
@@ -111,19 +113,38 @@ def get_inception_score(images, device, batch_size=32, splits=5):
     inception_score = np.exp(np.mean(scores))
     print(f'IS: {inception_score}')
     return
+def get_SSIM(generated_images,real_images):
+    # 假设有num_classes个类别，每个类别生成了num_images_per_class张图像，且真实图像和生成图像的大小均为(H,W,C)
+    num_classes = generated_images.shape[0]
+    num_images_per_class = generated_images.shape[1]
+    ssim_values = torch.zeros(num_classes)
+    for i in range(num_classes):
+        ssim_sum = 0.0
+        for j in range(num_images_per_class):
+            # 计算第i个类别下第j张生成图像和真实图像之间的SSIM值
+            ssim_sum += ssim(real_images[i,j],
+                             generated_images[i,j],
+                             multichannel=True)
+        # 计算第i个类别下所有图像的平均SSIM值
+        ssim_values[i] = ssim_sum / num_images_per_class
+
+    # 计算所有类别下的平均SSIM值作为整个生成图像集合的质量评价指标
+    avg_ssim = torch.mean(ssim_values)
+    print(f'avg_ssim: {avg_ssim}')
+    return
 
 
 if __name__ == '__main__':
     # 加载数据
-    data_name = "IITDdata_left_6"
+    data_name = "IITDdata_left_PSA_6"
     num = data_name[-1]
     raw_data = np.load("../datasets/"+ data_name +".npy", allow_pickle=True).copy()
 
     # 加载生成的图像和真实图像的array
     generated_images = raw_data[:, 0:int(num), ]
     real_images = raw_data[:, int(num):, ]
-    # cal_FID(generated_images,real_images) # 越小越相似
-    print(generated_images.shape)
-    aa = np.reshape(generated_images, (-1,1,84,84), order='C')
+    # get_FID(generated_images,real_images) # 越小越相似
+    # get_inception_score(generated_images,'cuda') # 越大越多样
 
-    get_inception_score(aa,'cuda')
+    get_SSIM(generated_images, real_images) #SSIM值越接近1表示生成的图像与真实图像越相似，质量越高
+
