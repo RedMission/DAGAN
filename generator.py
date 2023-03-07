@@ -95,8 +95,8 @@ class _EncoderBlock(nn.Module):
 
     def forward(self, inp):
         pre_input, x = inp
-        pre_input = self.pre_conv(pre_input)
-        out = self.conv0(torch.cat([x, pre_input], 1))
+        pre_input = self.pre_conv(pre_input) # 前项输出的处理
+        out = self.conv0(torch.cat([x, pre_input], 1)) # 密集连接
 
         all_outputs = [x, out]
         for i in range(1, self.num_layers + 1):
@@ -280,28 +280,33 @@ class Generator(nn.Module):
 
     def forward(self, x, z):
         # Final output of every encoding block
-        all_outputs = [x, self.encode0(x)]
+        all_outputs = [x, self.encode0(x)] # 已有两项
 
         # Last 2 layer outputs
         out = [x, self.encode0(x)]
         for i in range(1, len(self.layer_sizes)):
-            out = self._modules["encode%d" % i](out)
+            out = self._modules["encode%d" % i](out) # 对外层out更新了吧
             all_outputs.append(out[1])
+            # all_outputs长度变化范围3，4，5
 
         pre_input, curr_input = None, out[1]
         for i in range(self.U_depth + 1):
+            print("i:",i)
             if i > 0:
-                curr_input = torch.cat([curr_input, all_outputs[-i - 1]], 1)
+                # 拼接解码器的输出
+                curr_input = torch.cat([curr_input, all_outputs[-i - 1]], 1) # 按照通道（channel）维度拼接
+
             if i < self.noise_encoders:
                 z_out = self._modules["z_reshape%d" % i](z)
 
                 curr_dim = self.dim_arr[-i - 1]
                 z_out = z_out.view(-1, self.z_channels[i], curr_dim, curr_dim)
-                curr_input = torch.cat([z_out, curr_input], 1)
+                curr_input = torch.cat([z_out, curr_input], 1) # 与噪声拼接
 
             pre_input, curr_input = self._modules["decode%d" % i](
                 [pre_input, curr_input]
             )
+
 
         for i in range(self.num_final_conv):
             curr_input = self._modules["final_conv%d" % i](curr_input)
@@ -309,5 +314,8 @@ class Generator(nn.Module):
 
 
 if __name__ == '__main__':
-    g = Generator(dim=84, channels=1, dropout_rate=0.5)
-    print(g)
+    # 测试是否可以运行
+    model = Generator(dim=84, channels=1, dropout_rate=0.5)
+    a = torch.randn([10,1,84,84])
+    z = torch.randn([10,84])
+    y = model(a,z)
