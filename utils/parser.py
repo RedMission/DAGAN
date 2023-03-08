@@ -32,7 +32,7 @@ def get_dagan_args():
         "--img_size",
         nargs="?",
         type=int,
-        default= 84,
+        default= 128,
         help="Dimension to scale images when training. "
         "Useful when model architecture expects specific input size. "
         "If not specified, uses img_size of data as passed.",

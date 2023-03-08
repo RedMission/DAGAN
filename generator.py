@@ -3,7 +3,7 @@ from collections import OrderedDict
 import torch
 from torch import nn
 import torch.nn.functional as F
-
+import torch.nn as nn
 
 class _SamePad(nn.Module):
     """
@@ -232,9 +232,16 @@ class Generator(nn.Module):
             # Input from previous decoder
             in_channels = 0 if i == 0 else self.layer_sizes[-i]
             # Input from encoder across the "U"
+
+            # in_channels += (
+            #     self.channels-1 if i == self.U_depth else self.layer_sizes[-i - 1]
+            # )
+            # 增加其他层D输出的连接
             in_channels += (
-                self.channels if i == self.U_depth else self.layer_sizes[-i - 1]
+                    sum(self.layer_sizes[: -i]) + self.channels if i > 0 else self.layer_sizes[-i - 1]
             )
+
+
             # Input from injected noise
             if i < self.noise_encoders:
                 in_channels += self.z_channels[i]
@@ -289,13 +296,18 @@ class Generator(nn.Module):
             all_outputs.append(out[1])
             # all_outputs长度变化范围3，4，5
 
+
         pre_input, curr_input = None, out[1]
         for i in range(self.U_depth + 1):
-            print("i:",i)
             if i > 0:
                 # 拼接解码器的输出
                 curr_input = torch.cat([curr_input, all_outputs[-i - 1]], 1) # 按照通道（channel）维度拼接
-
+                sf = 1
+                for layer in range(-i-2, -len(all_outputs)-1, -1):
+                    sf /= 2
+                    cat_output = nn.functional.interpolate(all_outputs[layer], scale_factor=sf, mode='bilinear', align_corners=True,
+                                                     recompute_scale_factor=True)
+                    curr_input = torch.cat([curr_input, cat_output], 1)  # 按照通道（channel）维度拼接
             if i < self.noise_encoders:
                 z_out = self._modules["z_reshape%d" % i](z)
 
@@ -307,7 +319,6 @@ class Generator(nn.Module):
                 [pre_input, curr_input]
             )
 
-
         for i in range(self.num_final_conv):
             curr_input = self._modules["final_conv%d" % i](curr_input)
         return self.tanh(curr_input)
@@ -315,7 +326,8 @@ class Generator(nn.Module):
 
 if __name__ == '__main__':
     # 测试是否可以运行
-    model = Generator(dim=84, channels=1, dropout_rate=0.5)
-    a = torch.randn([10,1,84,84])
-    z = torch.randn([10,84])
+    model = Generator(dim=128, channels=1, dropout_rate=0.5)
+    a = torch.randn([10,1,128,128])
+    z = torch.randn([10,128])
     y = model(a,z)
+
