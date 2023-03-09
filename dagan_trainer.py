@@ -216,10 +216,10 @@ class DaganTrainer:
         # 在终端可视化
         img = Image.fromarray(arr, mode="L").transpose(PIL.Image.TRANSPOSE)
         # print("----------",arr.shape) # （1800，150）
-        # display(img)
+        display(img)
         # 记录图片
         # 定义 ToTensor 转换
-        to_tensor = transforms.ToTensor()
+        # to_tensor = transforms.ToTensor()
         # 将 PIL Image 转换为 torch 张量
         # tensor = to_tensor(img).view(1, 1, 1800, 150)
         # self.writer.add_images('images', tensor, self.num_steps)
