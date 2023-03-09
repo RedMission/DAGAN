@@ -263,8 +263,6 @@ class DaganTrainer:
             if self.should_display_generations:
                 self.display_generations(data_loader, val_images)
             if self.num_tracking_images > 0:
-                print(self.tracking_images.shape)
-                print(self.tracking_z.shape)
                 self.tracking_images_gens.append(
                     self.g(self.tracking_images, self.tracking_z).cpu()
                 )
