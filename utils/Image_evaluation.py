@@ -136,15 +136,15 @@ def get_SSIM(generated_images,real_images):
 
 if __name__ == '__main__':
     # 加载数据
-    data_name = "IITDdata_left_PSA_6"
+    data_name = "IITDdata_left_PSA+SC_6"
     num = data_name[-1]
     raw_data = np.load("../datasets/"+ data_name +".npy", allow_pickle=True).copy()
 
     # 加载生成的图像和真实图像的array
     generated_images = raw_data[:, 0:int(num), ]
     real_images = raw_data[:, int(num):, ]
-    # get_FID(generated_images,real_images) # 越小越相似
-    # get_inception_score(generated_images,'cuda') # 越大越多样
+    get_FID(generated_images,real_images) # 越小越相似
+    get_inception_score(generated_images,'cuda') # 越大越多样
 
     get_SSIM(generated_images, real_images) #SSIM值越接近1表示生成的图像与真实图像越相似，质量越高
 
