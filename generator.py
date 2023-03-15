@@ -236,7 +236,7 @@ class Generator(nn.Module):
             # in_channels += (
             #     self.channels-1 if i == self.U_depth else self.layer_sizes[-i - 1]
             # )
-            # 增加其他层D输出的连接
+            # 密集连接的修改：增加其他层D输出的连接
             in_channels += (
                     sum(self.layer_sizes[: -i]) + self.channels if i > 0 else self.layer_sizes[-i - 1]
             )

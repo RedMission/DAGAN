@@ -88,7 +88,7 @@ def get_dagan_args():
         "--dropout_rate",
         type=float,
         nargs="?",
-        default=0.5,
+        default=0.6,
         help="Dropout rate to use within network architecture.",
     )
     parser.add_argument(

@@ -78,7 +78,7 @@ def main():
     )
     # 优化器
     g_opt = optim.Adam(g.parameters(), lr=0.0001, betas=(0.0, 0.9))
-    d_opt = optim.Adam(d.parameters(), lr=0.0001, betas=(0.0, 0.9))
+    d_opt = optim.Adam(d.parameters(), lr=0.0002, betas=(0.0, 0.9))
 
     # 取测试的数据
     val_data = raw_data[num_training_classes: num_training_classes + num_val_classes]
