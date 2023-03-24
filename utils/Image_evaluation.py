@@ -23,7 +23,7 @@ def torch_cov(m, rowvar=False):
     m = m - m.mean(dim=1, keepdim=True)
     return 1 / m.size(1) * m.mm(m.t())
 
-# 定义计算弗雷谢特距离的函数
+# 定义 计算弗雷谢特距离的函数
 def calculate_frechet_distance(mu1, sigma1, mu2, sigma2, eps=1e-6):
     # Compute the squared Frobenius norm between two covariance matrices.
     diff = mu1 - mu2

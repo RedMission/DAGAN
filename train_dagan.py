@@ -10,8 +10,7 @@ import torch.optim as optim
 import numpy as np
 from torch.utils.tensorboard import SummaryWriter
 
-
-
+# test
 def main():
     # To maintain reproducibility
     torch.manual_seed(0)
@@ -115,4 +114,5 @@ def main():
 
 
 if __name__ == "__main__":
+    print("训练模型")
     main()
