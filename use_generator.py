@@ -84,7 +84,7 @@ def generate_dataset(generator_sample_num):
         # 修改原始图像形状
         raw_inps = raw_data[:, num, ]
         generate_dataset_arr = np.array([norm_transform(c) for c in raw_inps])[:, np.newaxis]
-        generate_dataset = np.concatenate((generate_dataset, generate_dataset_arr), axis=1)
+        generate_dataset = np.concatenate((generate_dataset, generate_dataset_arr), axis=1) # 所以生成的是前面几列
 
     return generate_dataset
 
