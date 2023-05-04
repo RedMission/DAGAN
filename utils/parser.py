@@ -41,18 +41,16 @@ def get_dagan_args():
         "--num_training_classes",
         nargs="?",
         type=int,
-        # default=1200,
-        default=184,
-        # default=480,
+        # default=184,
+        default=80,
         help="Number of classes to use for training.",
     )
     parser.add_argument(
         "--num_val_classes",
         nargs="?",
         type=int,
-        # default=200,
-        default=46,
-        # default=120,
+        # default=46,
+        default=20,
         help="Number of classes to use for validation.",
     )
     parser.add_argument(
