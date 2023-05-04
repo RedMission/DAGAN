@@ -10,7 +10,7 @@ def get_dagan_args():
     parser.add_argument(
         "--dataset_path",
         type=str,
-        default="datasets/Tongji_session2.npy",
+        default="datasets/PolyUROI.npy",
         # default="datasets/Tongji_session1.npy",
         help="Filepath for dataset on which to train dagan. File should be .npy format with shape "
         "(num_classes, samples_per_class, height, width, channels).",
@@ -18,7 +18,7 @@ def get_dagan_args():
     parser.add_argument(
         "--final_model_path", type=str,
         # 保存整个模型
-        default="model_path/final_tongji_s2_generator.pt",
+        default="model_path/final_PolyUROI_generator.pt",
         help="Filepath to save final dagan model."
     )
     parser.add_argument(
