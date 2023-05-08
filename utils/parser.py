@@ -10,15 +10,16 @@ def get_dagan_args():
     parser.add_argument(
         "--dataset_path",
         type=str,
-        default="datasets/PolyUROI.npy",
-        # default="datasets/Tongji_session1.npy",
+        default="datasets/IITDdata_left.npy",
+        # default="datasets/PolyUROI.npy",
+        # default="datasets/Tongji_session2.npy",
         help="Filepath for dataset on which to train dagan. File should be .npy format with shape "
         "(num_classes, samples_per_class, height, width, channels).",
     )
     parser.add_argument(
         "--final_model_path", type=str,
         # 保存整个模型
-        default="model_path/final_PolyUROI_generator.pt",
+        default="model_path/final_IITD(去掉SC)_generator.pt",
         help="Filepath to save final dagan model."
     )
     parser.add_argument(
@@ -41,16 +42,16 @@ def get_dagan_args():
         "--num_training_classes",
         nargs="?",
         type=int,
-        # default=184,
-        default=80,
+        default=184,
+        # default=80,
         help="Number of classes to use for training.",
     )
     parser.add_argument(
         "--num_val_classes",
         nargs="?",
         type=int,
-        # default=46,
-        default=20,
+        default=46,
+        # default=20,
         help="Number of classes to use for validation.",
     )
     parser.add_argument(

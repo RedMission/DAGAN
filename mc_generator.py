@@ -3,7 +3,7 @@ from collections import OrderedDict
 import torch
 from torch import nn
 import torch.nn.functional as F
-
+import torch.nn as nn
 
 class _SamePad(nn.Module):
     """
@@ -19,7 +19,6 @@ class _SamePad(nn.Module):
             return F.pad(x, (0, 1, 0, 1))
         return F.pad(x, (1, 1, 1, 1))
 
-
 def _conv2d(in_channels, out_channels, kernel_size, stride, activate=True, dropout=0.0):
     layers = OrderedDict()
     layers["pad"] = _SamePad(stride)
@@ -31,7 +30,6 @@ def _conv2d(in_channels, out_channels, kernel_size, stride, activate=True, dropo
     if dropout > 0.0:
         layers["dropout"] = nn.Dropout(dropout)
     return nn.Sequential(layers)
-
 
 def _conv2d_transpose(
     in_channels, out_channels, kernel_size, upscale_size, activate=True, dropout=0.0
@@ -50,7 +48,7 @@ def _conv2d_transpose(
     return nn.Sequential(layers)
 
 
-class _EncoderBlock(nn.Module):
+class MC_EncoderBlock(nn.Module):
     def __init__(
         self, pre_channels, in_channels, out_channels, num_layers, dropout_rate=0.0
     ):
@@ -106,8 +104,7 @@ class _EncoderBlock(nn.Module):
             all_outputs.append(out)
         return all_outputs[-2], all_outputs[-1]
 
-
-class _DecoderBlock(nn.Module):
+class MC_DecoderBlock(nn.Module):
     def __init__(
         self,
         pre_channels,
@@ -180,8 +177,7 @@ class _DecoderBlock(nn.Module):
             all_outputs.append(out)
         return all_outputs[-2], all_outputs[-1]
 
-
-class Generator(nn.Module):
+class MC_Generator(nn.Module):
     def __init__(self, dim, channels, dropout_rate=0.0, z_dim=100):
         super().__init__()
         self.dim = dim
@@ -205,7 +201,7 @@ class Generator(nn.Module):
         for i in range(1, self.U_depth):
             self.add_module(
                 "encode%d" % i,
-                _EncoderBlock(
+                MC_EncoderBlock(
                     pre_channels=self.channels if i == 1 else self.layer_sizes[i - 1],
                     in_channels=self.layer_sizes[i - 1],
                     out_channels=self.layer_sizes[i],
@@ -232,16 +228,23 @@ class Generator(nn.Module):
             # Input from previous decoder
             in_channels = 0 if i == 0 else self.layer_sizes[-i]
             # Input from encoder across the "U"
+
+            # in_channels += (
+            #     self.channels-1 if i == self.U_depth else self.layer_sizes[-i - 1]
+            # )
+            # 密集连接的修改：增加其他层D输出的连接
             in_channels += (
-                self.channels if i == self.U_depth else self.layer_sizes[-i - 1]
+                    sum(self.layer_sizes[: -i]) + self.channels if i > 0 else self.layer_sizes[-i - 1]
             )
+
+
             # Input from injected noise
             if i < self.noise_encoders:
                 in_channels += self.z_channels[i]
 
             self.add_module(
                 "decode%d" % i,
-                _DecoderBlock(
+                MC_DecoderBlock(
                     pre_channels=0 if i == 0 else self.layer_sizes[-i],
                     in_channels=in_channels,
                     out_channels=self.layer_sizes[0]
@@ -289,12 +292,18 @@ class Generator(nn.Module):
             all_outputs.append(out[1])
             # all_outputs长度变化范围3，4，5
 
+
         pre_input, curr_input = None, out[1]
         for i in range(self.U_depth + 1):
             if i > 0:
                 # 拼接解码器的输出
                 curr_input = torch.cat([curr_input, all_outputs[-i - 1]], 1) # 按照通道（channel）维度拼接
-
+                sf = 1
+                for layer in range(-i-2, -len(all_outputs)-1, -1):
+                    sf /= 2
+                    cat_output = nn.functional.interpolate(all_outputs[layer], scale_factor=sf, mode='bilinear', align_corners=True,
+                                                     recompute_scale_factor=True)
+                    curr_input = torch.cat([curr_input, cat_output], 1)  # 按照通道（channel）维度拼接
             if i < self.noise_encoders:
                 z_out = self._modules["z_reshape%d" % i](z)
 
@@ -312,8 +321,8 @@ class Generator(nn.Module):
 
 if __name__ == '__main__':
     # 测试是否可以运行
-    model = Generator(dim=128, channels=1, dropout_rate=0.5)
+    model = MC_Generator(dim=128, channels=1, dropout_rate=0.5)
     a = torch.randn([10,1,128,128])
     z = torch.randn([10,128])
     y = model(a,z)
-    print(y.shape)
+
