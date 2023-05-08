@@ -176,7 +176,7 @@ def getPolyUROIFileArr(dir,name):
         result=np.concatenate((result,img_arr))
         result = result.reshape((img.size[0], img.size[1], 1))
         # 归一化
-        # result=result/255.0
+        result=result/255.0
         # 映射文件与归一化后文件
         map_file_result[file] = result
         # result_arr.append(result)

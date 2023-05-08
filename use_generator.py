@@ -1,3 +1,5 @@
+import time
+
 import numpy as np
 import torch
 import torchvision.transforms as transforms
@@ -54,12 +56,12 @@ def generate_arr(raw_inp):
     :return: 生成的格式为array [150,150,1]的模拟图像
     '''
     # 1.转换成张量
-    inp = display_transform(raw_inp)
+    inp = display_transform(raw_inp).to('cuda')
     # 2.利用模型生成张量
     with torch.no_grad():
         res = g(inp.unsqueeze(0), z)[0]
     # 3.张量转成数组
-    test_raw = res.numpy()
+    test_raw = res.to('cpu').numpy()
     test = test_raw.reshape(test_raw.shape[1], test_raw.shape[2], 1)
     return test
 def generate_dataset(generator_sample_num):
@@ -90,21 +92,26 @@ def generate_dataset(generator_sample_num):
 
 if __name__ == '__main__':
     # 加载训练好的模型
-    model_name = "IITD_230316_PSA+SC_epoch100_l_generator.pt"
-    g = torch.load("model_path/" + model_name, map_location=torch.device('cpu'))
+    model_name = "Tongji_230504_PSA+MC_epoch100_generator.pt"
+    g = torch.load("model_path/" + model_name, map_location=torch.device('cuda'))
     # model.eval()不启用 BatchNormalization 和 Dropout，保证BN和dropout不发生变化，
     # pytorch框架会自动把BN和Dropout固定住，不会取平均，而是用训练好的值
     g.eval()
 
     # 加载数据
-    data_name = "IITDdata_left"
+    # data_name = "IITDdata_left"
+    data_name = "Tongji_session2"
+    # data_name = "PolyUROI"
     raw_data = np.load("datasets/"+ data_name +".npy", allow_pickle=True).copy()
     # print(g.z_dim) # 100
     # print(g.dim) # 84
     # 噪声
-    z = torch.randn((1, g.z_dim))
+    z = torch.randn((1, g.z_dim)).to('cuda')
     generator_sample_num = 6
+    start = time.time()
     new_data = generate_dataset(generator_sample_num)
+    end = time.time()
+    print("times:",(end - start)/(new_data.shape[0]*new_data.shape[1]))
     print("已生成扩充数据：",new_data.shape)
     np.save('datasets/'+data_name+"_"+"PSA+SC_"+str(generator_sample_num)+".npy", new_data)
 

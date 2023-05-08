@@ -11,7 +11,7 @@ from utils.parser import get_dagan_args
 if __name__ == '__main__':
     # 加载数据
     # raw_data = np.load("datasets/omniglot_data.npy")
-    raw_data = np.load("F:\jupyter_notebook\DAGAN\datasets\Tongji_session2.npy",allow_pickle=True)
+    raw_data = np.load("F:\jupyter_notebook\DAGAN\datasets\PolyUROI.npy",allow_pickle=True)
     print("数据集类型：",type(raw_data))
     print("数据集形状：",raw_data.shape)
     # print("一类数据类型：",type(raw_data[0]))
