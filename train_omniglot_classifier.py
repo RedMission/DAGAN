@@ -6,7 +6,7 @@ from utils.classifier_utils import (
     create_generated_batch,
     create_real_batch,
 )
-from generator import Generator
+from generator import Generator_change
 from utils.parser import get_omniglot_classifier_args
 import torch.nn as nn
 import torch

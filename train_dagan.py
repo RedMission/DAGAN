@@ -1,9 +1,9 @@
 from dagan_trainer import DaganTrainer
+# from discriminator import Discriminator_change
+# from generator import Generator_change
+from dataset import create_dagan_dataloader
 from discriminator import Discriminator
 from generator import Generator
-from dataset import create_dagan_dataloader
-from mc_discriminator import MC_Discriminator
-from mc_generator import MC_Generator
 from utils.parser import get_dagan_args
 import torchvision.transforms as transforms
 import torch
@@ -61,7 +61,7 @@ def main():
 
     # g = MC_Generator(dim=img_size, channels=in_channels, dropout_rate=dropout_rate)
     g = Generator(dim=img_size, channels=in_channels, dropout_rate=dropout_rate)
-    d = MC_Discriminator(dim=img_size, channels=in_channels * 2, dropout_rate=dropout_rate)
+    d = Discriminator(dim=img_size, channels=in_channels * 2, dropout_rate=dropout_rate)
 
     mid_pixel_value = max_pixel_value / 2
     train_transform = transforms.Compose(
