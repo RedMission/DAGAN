@@ -151,7 +151,7 @@ def get_PSNR(generated_images, real_images):
 
 if __name__ == '__main__':
     # 加载数据
-    data_name = "Tongji_session2_PSA+SC_6.npy"
+    data_name = "IITDdata_left_PSA+MC+W_6.npy"
     # data_name = "PolyUROI_PSA+SC_6.npy"
     # data_name = "IITDdata_left_PSA+SC_6.npy"
     num = data_name.split(".")[0][-1]
@@ -160,9 +160,9 @@ if __name__ == '__main__':
     # 加载生成的图像和真实图像的array
     generated_images = raw_data[:, 0:int(num), ]
     real_images = raw_data[:, int(num):int(num)*2, ]
-    # get_FID(generated_images,real_images) # 越小越相似
-    # get_inception_score(generated_images,'cuda') # 越大越多样
-    # get_SSIM(generated_images, real_images) #SSIM值越接近1表示生成的图像与真实图像越相似，质量越高
+    get_FID(generated_images,real_images) # 越小越相似
+    get_inception_score(generated_images,'cuda') # 越大越多样
+    get_SSIM(generated_images, real_images) #SSIM值越接近1表示生成的图像与真实图像越相似，质量越高
     # get_MMD(generated_images, real_images) #MMD值越大表示两个分布之间差异越大，值越小表示两个分布之间差异越小
     get_PSNR(generated_images, real_images)
 
