@@ -1,5 +1,4 @@
 from collections import OrderedDict
-
 import torch
 from torch import nn
 import torch.nn.functional as F
@@ -27,8 +26,6 @@ class _LayerNorm(nn.Module):
         out = self.layer_norm(x)
         out = out * self.weight + self.bias
         return out
-
-
 class _SamePad(nn.Module):
     """
     Pads equivalent to the behavior of tensorflow "SAME"
@@ -42,8 +39,6 @@ class _SamePad(nn.Module):
         if self.stride == 2 and x.shape[2] % 2 == 0:
             return F.pad(x, (0, 1, 0, 1)) # 对输入矩阵的后两个维度进行扩充
         return F.pad(x, (1, 1, 1, 1))
-
-
 def _conv2d(
     in_channels,
     out_channels,
@@ -66,8 +61,79 @@ def _conv2d(
         layers["dropout"] = nn.Dropout(dropout)
     return nn.Sequential(layers)
 
-
+# 无PSA版本
 class _EncoderBlock(nn.Module):
+    # 无PSA版本
+    def __init__(
+        self,
+        pre_channels, #
+        in_channels,
+        out_channels,
+        num_layers,
+        out_size,
+        dropout_rate=0.0,
+    ):
+        super().__init__()
+        self.num_layers = num_layers
+        self.pre_conv = _conv2d(
+            in_channels=pre_channels, # pre层将通道数调节为pre
+            out_channels=pre_channels,
+            kernel_size=3,
+            stride=2,
+            activate=False,
+        )
+
+        self.conv0 = _conv2d( # 第1层
+            in_channels=in_channels + pre_channels,
+            out_channels=out_channels,
+            kernel_size=3,
+            stride=1,
+            out_size=out_size,
+        )
+        total_channels = in_channels + out_channels
+
+        for i in range(1, num_layers): # 循环加卷积层
+            self.add_module(
+                "conv%d" % i,
+                _conv2d(
+                    in_channels=total_channels,
+                    out_channels=out_channels,
+                    kernel_size=3,
+                    stride=1,
+                    out_size=out_size,
+                ),
+            )
+            total_channels += out_channels # 通道数在增加
+        self.add_module(
+            "conv%d" % num_layers, # 第num_layers+1层
+            _conv2d(
+                in_channels=total_channels,
+                out_channels=out_channels,
+                kernel_size=3,
+                stride=2,
+                out_size=(out_size + 1) // 2,
+                dropout=dropout_rate,
+            ),
+        )
+
+    def forward(self, inp):
+        pre_input, x = inp
+        pre_input = self.pre_conv(pre_input)
+        out = self.conv0(torch.cat([x, pre_input], 1)) # 和pre层拼接
+
+        all_outputs = [x, out]
+        for i in range(1, self.num_layers + 1):
+            input_features = torch.cat(
+                [all_outputs[-1], all_outputs[-2]] + all_outputs[:-2], 1 # 拼接（为什么要拼接
+            )
+            module = self._modules["conv%d" % i]
+            out = module(input_features) # 逐层forward
+            all_outputs.append(out) # 记录输出到all_outputs
+        return all_outputs[-2], all_outputs[-1]
+
+# PSA版本
+class _PSAEncoderBlock(nn.Module):
+    # PSA版本
     def __init__(
         self,
         pre_channels, #
@@ -140,15 +206,15 @@ class _EncoderBlock(nn.Module):
             all_outputs.append(out) # 记录输出到all_outputs
         return all_outputs[-2], all_outputs[-1]
 
-
 class Discriminator(nn.Module):
-    def __init__(self, dim, channels, dropout_rate=0.0, z_dim=100):
+    def __init__(self, dim, channels, dropout_rate=0.0, z_dim=100,psa=1):
         super().__init__()
         self.dim = dim
         self.z_dim = z_dim
         self.channels = channels
         self.layer_sizes = [64, 64, 128, 128]
         self.num_inner_layers = 5
+        block = _PSAEncoderBlock if psa else _EncoderBlock # 判断是否需要psa模块
 
         # Number of times dimension is halved 尺寸减半的次数
         self.depth = len(self.layer_sizes)
@@ -169,7 +235,7 @@ class Discriminator(nn.Module):
         for i in range(1, self.depth):
             self.add_module(
                 "encode%d" % i,
-                _EncoderBlock(
+                block(
                     pre_channels=self.channels if i == 1 else self.layer_sizes[i - 1],
                     in_channels=self.layer_sizes[i - 1], # 上一层的输出
                     out_channels=self.layer_sizes[i], # 设定的本层输出
@@ -199,5 +265,8 @@ class Discriminator(nn.Module):
         return out
 
 if __name__ == '__main__':
-    d = Discriminator(dim=84, channels=1 * 2, dropout_rate=0.5)
-    print(d)
+    model = Discriminator(dim=128, channels=1 * 2, dropout_rate=0.5,psa=0)
+    a = torch.randn([16, 1, 128, 128])
+    b = torch.randn([16, 1, 128, 128])
+    y = model(a,b)
+    print(y.shape)
