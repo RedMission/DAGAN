@@ -180,9 +180,12 @@ class _PSAEncoderBlock(nn.Module):
             )
             total_channels += out_channels # 通道数在增加
 
-        self.conv1 = PyramidSplitAttention(  # 插入金字塔模块
-            in_channels=total_channels,
-            out_channels=out_channels,
+        self.add_module(
+            "conv%d" % int(num_layers),
+            PyramidSplitAttention(  # 插入金字塔模块
+                in_channels=total_channels,
+                out_channels=out_channels,
+            )
         )
         total_channels += out_channels  # 通道数在增加
 
