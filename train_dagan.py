@@ -58,7 +58,7 @@ def main():
         )
 
     # g = MC_Generator(dim=img_size, channels=in_channels, dropout_rate=dropout_rate)
-    g = generator.MC_SC_GeneratorGenerator(dim=img_size, channels=in_channels, dropout_rate=dropout_rate)
+    g = generator.MC_SC_Generator(dim=img_size, channels=in_channels, dropout_rate=dropout_rate)
     d = Discriminator(dim=img_size, channels=in_channels * 2, dropout_rate=dropout_rate)
 
     mid_pixel_value = max_pixel_value / 2
