@@ -279,7 +279,7 @@ class _EncoderBlock_2(nn.Module):
         )
 
     def forward(self, inp):
-        print("222")
+        # print("222")
         pre_input, x = inp
         pre_input = self.pre_conv(pre_input)
 
