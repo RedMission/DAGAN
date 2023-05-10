@@ -380,8 +380,6 @@ class MC_EncoderBlock(nn.Module):
             out = module(input_features)
             all_outputs.append(out)
         return all_outputs[-2], all_outputs[-1]
-
-
 class MC_DecoderBlock(nn.Module):
     # MC版
     def __init__(
@@ -455,8 +453,6 @@ class MC_DecoderBlock(nn.Module):
             out = module(input_features)
             all_outputs.append(out)
         return all_outputs[-2], all_outputs[-1]
-
-
 class MC_Generator(nn.Module):
     # MC版
     def __init__(self, dim, channels, dropout_rate=0.0, z_dim=100):
