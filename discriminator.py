@@ -179,18 +179,8 @@ class _PSAEncoderBlock(nn.Module):
                 ),
             )
             total_channels += out_channels # 通道数在增加
-
         self.add_module(
-            "conv%d" % int(num_layers),
-            PyramidSplitAttention(  # 插入金字塔模块
-                in_channels=total_channels,
-                out_channels=out_channels,
-            )
-        )
-        total_channels += out_channels  # 通道数在增加
-
-        self.add_module(
-            "conv%d" % int(num_layers+1), # 第num_layers+1层
+            "conv%d" % int(num_layers), # 第num_layers+1层
             _conv2d(
                 in_channels=total_channels,
                 out_channels=out_channels,
@@ -204,6 +194,7 @@ class _PSAEncoderBlock(nn.Module):
     def forward(self, inp):
         pre_input, x = inp
         pre_input = self.pre_conv(pre_input)
+
         out = self.conv0(torch.cat([x, pre_input], 1)) # 和pre层拼接
 
         all_outputs = [x, out]
@@ -275,7 +266,7 @@ class Discriminator(nn.Module):
         return out
 
 if __name__ == '__main__':
-    model = Discriminator(dim=128, channels=1 * 2, dropout_rate=0.5,psa=0)
+    model = Discriminator(dim=128, channels=1 * 2, dropout_rate=0.5,psa=1)
     a = torch.randn([16, 1, 128, 128])
     b = torch.randn([16, 1, 128, 128])
     y = model(a,b)
