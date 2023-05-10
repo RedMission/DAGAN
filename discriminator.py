@@ -187,7 +187,7 @@ class _PSAEncoderBlock(nn.Module):
         total_channels += out_channels  # 通道数在增加
 
         self.add_module(
-            "conv%d" % num_layers+1, # 第num_layers+1层
+            "conv%d" % str(num_layers+1), # 第num_layers+1层
             _conv2d(
                 in_channels=total_channels,
                 out_channels=out_channels,
