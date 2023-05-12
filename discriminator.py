@@ -124,7 +124,7 @@ class _EncoderBlock_0(nn.Module):
         all_outputs = [x, out]
         for i in range(1, self.num_layers + 1):
             input_features = torch.cat(
-                [all_outputs[-1], all_outputs[-2]] + all_outputs[:-2], 1 # 拼接（为什么要拼接
+                [all_outputs[-1], all_outputs[-2]] + all_outputs[:-2], 1 # 拼接
             )
             module = self._modules["conv%d" % i]
             out = module(input_features) # 逐层forward
@@ -201,16 +201,16 @@ class _EncoderBlock_1(nn.Module):
         all_outputs = [x, out]
         for i in range(1, self.num_layers + 1):
             input_features = torch.cat(
-                [all_outputs[-1], all_outputs[-2]] + all_outputs[:-2], 1 # 拼接（为什么要拼接
+                [all_outputs[-1], all_outputs[-2]] + all_outputs[:-2], 1 # 拼接
             )
             module = self._modules["conv%d" % i]
             out = module(input_features) # 逐层forward
             all_outputs.append(out) # 记录输出到all_outputs
         return all_outputs[-2], all_outputs[-1]
 
-# PSA版本
+# PSA2版本
 class _EncoderBlock_2(nn.Module):
-    # PSA版本
+    # PSA2版本
     def __init__(
         self,
         pre_channels, #
@@ -288,7 +288,96 @@ class _EncoderBlock_2(nn.Module):
         all_outputs = [x, out]
         for i in range(1, self.num_layers + 2): # 2个PSA
             input_features = torch.cat(
-                [all_outputs[-1], all_outputs[-2]] + all_outputs[:-2], 1 # 拼接（为什么要拼接
+                [all_outputs[-1], all_outputs[-2]] + all_outputs[:-2], 1 # 拼接
+            )
+            module = self._modules["conv%d" % i]
+            out = module(input_features) # 逐层forward
+            all_outputs.append(out) # 记录输出到all_outputs
+        return all_outputs[-2], all_outputs[-1]
+
+# PSA3版本
+class _EncoderBlock_3(nn.Module):
+    # PSA3版本
+    def __init__(
+        self,
+        pre_channels, #
+        in_channels,
+        out_channels,
+        num_layers,
+        out_size,
+        dropout_rate=0.0,
+    ):
+        super().__init__()
+        self.num_layers = num_layers
+        self.pre_conv = _conv2d(
+            in_channels=pre_channels, # pre层将通道数调节为pre
+            out_channels=pre_channels,
+            kernel_size=3,
+            stride=2,
+            activate=False,
+        )
+
+        self.conv0 = _conv2d( # 第1层
+            in_channels=in_channels + pre_channels,
+            out_channels=out_channels,
+            kernel_size=3,
+            stride=1,
+            out_size=out_size,
+        )
+        total_channels = in_channels + out_channels
+
+        self.conv1 = PyramidSplitAttention( # 插入金字塔模块
+            in_channels=total_channels,
+            out_channels=out_channels,
+        )
+        total_channels += out_channels  # 通道数在增加
+
+        for i in range(2, num_layers,2): # 循环加卷积层
+            self.add_module(
+                "conv%d" % i,
+                _conv2d(
+                    in_channels=total_channels,
+                    out_channels=out_channels,
+                    kernel_size=3,
+                    stride=1,
+                    out_size=out_size,
+                ),
+            )
+            total_channels += out_channels # 通道数在增加
+
+            self.add_module(
+                "conv%d" % int(i+1),
+                PyramidSplitAttention(
+                    in_channels=total_channels,
+                    out_channels=out_channels,
+                ),
+            )
+            total_channels += out_channels # 通道数在增加
+
+
+        self.add_module(
+            "conv%d" % (num_layers+1), # 第num_layers+1层
+            _conv2d(
+                in_channels=total_channels,
+                out_channels=out_channels,
+                kernel_size=3,
+                stride=2,
+                out_size=(out_size + 1) // 2,
+                dropout=dropout_rate,
+            ),
+        )
+
+    def forward(self, inp):
+        # print("222")
+        pre_input, x = inp
+        pre_input = self.pre_conv(pre_input)
+
+        out = self.conv0(torch.cat([x, pre_input], 1)) # 和pre层拼接
+
+        all_outputs = [x, out]
+        for i in range(1, self.num_layers + 2): # 2个PSA
+            input_features = torch.cat(
+                [all_outputs[-1], all_outputs[-2]] + all_outputs[:-2], 1 #
             )
             module = self._modules["conv%d" % i]
             out = module(input_features) # 逐层forward
@@ -304,7 +393,7 @@ class Discriminator(nn.Module):
         self.channels = channels
         self.layer_sizes = [64, 64, 128, 128]
         self.num_inner_layers = 5
-        block = _EncoderBlock_2 # 设定psa模块
+        block = _EncoderBlock_3 # 设定psa模块
 
         # Number of times dimension is halved 尺寸减半的次数
         self.depth = len(self.layer_sizes)
