@@ -192,7 +192,7 @@ class _EncoderBlock_1(nn.Module):
         )
 
     def forward(self, inp):
-        print("1111")
+        # print("1111")
         pre_input, x = inp
         pre_input = self.pre_conv(pre_input)
 
@@ -393,7 +393,7 @@ class Discriminator(nn.Module):
         self.channels = channels
         self.layer_sizes = [64, 64, 128, 128]
         self.num_inner_layers = 5
-        block = _EncoderBlock_3 # 设定psa模块
+        block = _EncoderBlock_1 # 设定psa模块
 
         # Number of times dimension is halved 尺寸减半的次数
         self.depth = len(self.layer_sizes)

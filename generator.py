@@ -478,7 +478,7 @@ class MC_Generator(nn.Module):
         for i in range(1, self.U_depth):
             self.add_module(
                 "encode%d" % i,
-                _EncoderBlock(
+                MC_EncoderBlock(
                     pre_channels=self.channels if i == 1 else self.layer_sizes[i - 1],
                     in_channels=self.layer_sizes[i - 1],
                     out_channels=self.layer_sizes[i],
@@ -514,7 +514,7 @@ class MC_Generator(nn.Module):
 
             self.add_module(
                 "decode%d" % i,
-                _DecoderBlock(
+                MC_DecoderBlock(
                     pre_channels=0 if i == 0 else self.layer_sizes[-i],
                     in_channels=in_channels,
                     out_channels=self.layer_sizes[0]
