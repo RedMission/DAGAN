@@ -92,28 +92,28 @@ def generate_dataset(generator_sample_num):
 
 if __name__ == '__main__':
     # 加载训练好的模型
-    model_name = "final_IITD(去掉SC)_generator.pt"
+    model_name = "Tongji_230504_PSA+MC_epoch100_generator.pt"
     g = torch.load("model_path/" + model_name, map_location=torch.device('cuda'))
     # model.eval()不启用 BatchNormalization 和 Dropout，保证BN和dropout不发生变化，
     # pytorch框架会自动把BN和Dropout固定住，不会取平均，而是用训练好的值
     g.eval()
 
     # 加载数据
-    data_name = "IITDdata_left"
-    # data_name = "Tongji_session2"
+    # data_name = "IITDdata_left"
+    data_name = "Tongji_session2"
     # data_name = "PolyUROI"
     raw_data = np.load("datasets/"+ data_name +".npy", allow_pickle=True).copy()
     # print(g.z_dim) # 100
     # print(g.dim) # 84
     # 噪声
     z = torch.randn((1, g.z_dim)).to('cuda')
-    generator_sample_num = 6
+    generator_sample_num = 3
     start = time.time()
     new_data = generate_dataset(generator_sample_num)
     end = time.time()
     print("times:",(end - start)/(new_data.shape[0]*new_data.shape[1]))
     print("已生成扩充数据：",new_data.shape)
-    np.save('datasets/'+data_name+"_PSA+MC+"+"W_"+str(generator_sample_num)+".npy", new_data)
+    np.save('datasets/'+data_name+"_PSA+SC_MC_W_"+str(generator_sample_num)+".npy", new_data)
 
 
 

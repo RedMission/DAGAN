@@ -51,8 +51,8 @@ def _conv2d_transpose(
         layers["dropout"] = nn.Dropout(dropout)
     return nn.Sequential(layers)
 
-# ###########  MC+SC版本  ###################################
-class MC_SC_EncoderBlock(nn.Module):
+# ###########  MC+SC版本  ###########类目有问题，需要按照实验意图（结合pt文件）修改##############
+class _EncoderBlock(nn.Module):
     # MC+SC
     def __init__(
         self, pre_channels, in_channels, out_channels, num_layers, dropout_rate=0.0
@@ -109,7 +109,7 @@ class MC_SC_EncoderBlock(nn.Module):
             all_outputs.append(out)
         return all_outputs[-2], all_outputs[-1]
 
-class MC_SC_DecoderBlock(nn.Module):
+class _DecoderBlock(nn.Module):
     # MC+SC
     def __init__(
         self,
@@ -183,7 +183,7 @@ class MC_SC_DecoderBlock(nn.Module):
             all_outputs.append(out)
         return all_outputs[-2], all_outputs[-1]
 
-class MC_SC_Generator(nn.Module):
+class Generator(nn.Module):
     # MC+SC
     def __init__(self, dim, channels, dropout_rate=0.0, z_dim=100):
         super().__init__()
@@ -208,7 +208,7 @@ class MC_SC_Generator(nn.Module):
         for i in range(1, self.U_depth):
             self.add_module(
                 "encode%d" % i,
-                MC_SC_EncoderBlock(
+                _EncoderBlock(
                     pre_channels=self.channels if i == 1 else self.layer_sizes[i - 1],
                     in_channels=self.layer_sizes[i - 1],
                     out_channels=self.layer_sizes[i],
@@ -248,7 +248,7 @@ class MC_SC_Generator(nn.Module):
 
             self.add_module(
                 "decode%d" % i,
-                MC_SC_DecoderBlock(
+                _DecoderBlock(
                     pre_channels=0 if i == 0 else self.layer_sizes[-i],
                     in_channels=in_channels,
                     out_channels=self.layer_sizes[0]
@@ -584,7 +584,7 @@ class MC_Generator(nn.Module):
         return self.tanh(curr_input)
 
 # ##########################两者都无版本######################################
-class _EncoderBlock(nn.Module):
+class None_EncoderBlock(nn.Module):
     # 无密集连接版本
     def __init__(
         self, in_channels, out_channels, num_layers, dropout_rate=0.0
@@ -627,7 +627,7 @@ class _EncoderBlock(nn.Module):
             out = module(input_features)
             all_outputs.append(out)
         return all_outputs[-1]
-class _DecoderBlock(nn.Module):
+class None_DecoderBlock(nn.Module):
     # 无密集连接版本
     def __init__(
         self,
@@ -695,7 +695,7 @@ class _DecoderBlock(nn.Module):
             module = self._modules["conv_t%d" % self.num_layers]
             out = module(outputs[-1])
         return out
-class Generator(nn.Module):
+class None_Generator(nn.Module):
     # 无密集连接MC版本
     def __init__(self, dim, channels, dropout_rate=0.0, z_dim=100):
         super().__init__()
