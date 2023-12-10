@@ -1,4 +1,6 @@
 from collections import OrderedDict
+
+import numpy as np
 import torch
 from torch import nn
 import torch.nn.functional as F
@@ -444,8 +446,10 @@ class Discriminator(nn.Module):
         return out
 
 if __name__ == '__main__':
-    model = Discriminator(dim=128, channels=1 * 2, dropout_rate=0.5)
+    # model = Discriminator(dim=128, channels=1 * 2, dropout_rate=0.5)
     a = torch.randn([16, 1, 128, 128])
     b = torch.randn([16, 1, 128, 128])
-    y = model(a,b)
-    print(y.shape)
+    # y = model(a,b)
+    # print(y.shape)
+
+    print(a.shape)

@@ -207,16 +207,36 @@ if __name__ == '__main__':
     # getIITDFileArr(dir,name)
 
     # 同济（600，10）
-    # dir = "E:\Documents\Matlab_work\DataBase\Tongji_ROI\session2"
-    # name="Tongji_session2"
+    # dir = "E:\Documents\Matlab_work\DataBase\Tongji_ROI\session1"
+    # name="Tongji_session1"
     # getTongjiFileArr(dir,name)
 
     # 香港理工（100，6）
-    dir = "E:\Documents\Matlab_work\DataBase\PolyU\PolyUROI"
-    name="PolyUROI"
-    getPolyUROIFileArr(dir,name)
-    # 彩色
+    # dir = "E:\Documents\Matlab_work\DataBase\PolyU\PolyUROI"
+    # name="PolyUROI"
+    # getPolyUROIFileArr(dir,name)
+    # # 彩色
     # dir = "E:\Documents\Matlab_work\DataBase\COEP"
 
     # img = Image.open("E:\Documents\Matlab_work\DataBase\Tongji_ROI\session1/00001.bmp")
     # print(img.mode)
+
+    raw_data = np.load("F:\jupyter_notebook\DAGAN\datasets\PolyUROI.npy", allow_pickle=True).copy()
+    poly_test =raw_data[80:]
+    np.save('F:\jupyter_notebook\DAGAN\datasets/'+"poly_test"+".npy", poly_test)
+    raw_data = np.load("F:\jupyter_notebook\DAGAN\datasets\PolyUROI.npy", allow_pickle=True).copy()
+    poly_train =raw_data[:80]
+    np.save('F:\jupyter_notebook\DAGAN\datasets/'+"poly_train"+".npy", poly_train)
+
+    # raw_data = np.load("F:\jupyter_notebook\DAGAN\datasets\PolyUROI_PSA+SC+MC+W_3.npy", allow_pickle=True).copy()
+    # poly_3_train = raw_data[:80]
+    # np.save('F:\jupyter_notebook\DAGAN\datasets/' + "poly_3_train" + ".npy", poly_3_train)
+
+    # raw_data = np.load("F:\jupyter_notebook\DAGAN\datasets\PolyUROI_PSA+SC+MC+W_6.npy", allow_pickle=True).copy()
+    # poly_6_train = raw_data[:80]
+    # np.save('F:\jupyter_notebook\DAGAN\datasets/' + "poly_6_train" + ".npy", poly_6_train)
+
+
+
+
+

@@ -70,9 +70,10 @@ def generate_dataset(generator_sample_num):
     :return: 新的数据集
     '''
     generate_dataset = np.array([generate_arr(c) for c in raw_data[:,0,]])[:, np.newaxis]
+    col_num = raw_data.shape[1]
     for num in range(1,generator_sample_num):
         # 0.切割一列出来
-        raw_inps = raw_data[:,num,]
+        raw_inps = raw_data[:,num%col_num,]
         # # 1.每个类别的都取出一张进行生成张量
         #  取单个图片放入训练好的模型
         # # 2.将生成的存到一个矩阵中
@@ -92,28 +93,32 @@ def generate_dataset(generator_sample_num):
 
 if __name__ == '__main__':
     # 加载训练好的模型
-    model_name = "Tongji_230504_PSA+MC_epoch100_generator.pt"
+    model_name = "IITD_230316_PSA+SC_MC_W_epoch100_l_generator.pt"
     g = torch.load("model_path/" + model_name, map_location=torch.device('cuda'))
     # model.eval()不启用 BatchNormalization 和 Dropout，保证BN和dropout不发生变化，
     # pytorch框架会自动把BN和Dropout固定住，不会取平均，而是用训练好的值
     g.eval()
 
+    tmp = filter(lambda x: x.requires_grad, g.parameters())
+    num = sum(map(lambda x: np.prod(x.shape), tmp))
+    print('Total trainable tensors:', num)
+
     # 加载数据
-    # data_name = "IITDdata_left"
-    data_name = "Tongji_session2"
+    data_name = "IITDdata_left"
+    # data_name = "Tongji_session2"
     # data_name = "PolyUROI"
     raw_data = np.load("datasets/"+ data_name +".npy", allow_pickle=True).copy()
     # print(g.z_dim) # 100
     # print(g.dim) # 84
     # 噪声
     z = torch.randn((1, g.z_dim)).to('cuda')
-    generator_sample_num = 3
+    generator_sample_num = 10
     start = time.time()
     new_data = generate_dataset(generator_sample_num)
     end = time.time()
     print("times:",(end - start)/(new_data.shape[0]*new_data.shape[1]))
     print("已生成扩充数据：",new_data.shape)
-    np.save('datasets/'+data_name+"_PSA+SC_MC_W_"+str(generator_sample_num)+".npy", new_data)
+    np.save('datasets/'+data_name+"_PSA+SC+MC+W_"+str(generator_sample_num)+".npy", new_data)
 
 
 
