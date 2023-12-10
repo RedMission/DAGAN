@@ -935,7 +935,7 @@ class SC_DecoderBlock(nn.Module):
             module = self._modules["conv_t%d" % self.num_layers]
             out = module(outputs[-1])
         return out
-class Generator(nn.Module):
+class SC_Generator(nn.Module):
     # SC版本
     def __init__(self, dim, channels, dropout_rate=0.0, z_dim=100):
         super().__init__()
