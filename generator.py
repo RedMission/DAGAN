@@ -749,12 +749,9 @@ class None_Generator(nn.Module):
             num_noise_filters //= 2 # 噪声滤波器数量减半
 
         # Decoders
-        for i in range(self.U_depth+1):
-            in_channels = 0 if i == 0 else self.layer_sizes[-i]
-            # Input from encoder across the "U"
-            in_channels += (
-                self.channels if i == self.U_depth else self.layer_sizes[-i - 1]
-            )
+        for i in range(self.U_depth):
+            in_channels = self.layer_sizes[-i-1]
+
             if i < self.noise_encoders:
                 in_channels += self.z_channels[i]
 
@@ -763,9 +760,9 @@ class None_Generator(nn.Module):
                 None_DecoderBlock(
                     pre_channels = self.layer_sizes[-i],
                     in_channels=in_channels,
-                    out_channels=self.layer_sizes[0]
-                                if i == self.U_depth
-                                else self.layer_sizes[-i - 1],
+                    out_channels=self.layer_sizes[-i - 2] if i < self.U_depth - 1 else self.layer_sizes[0]
+                    if i == self.U_depth
+                    else self.layer_sizes[-i - 1],
 
                     num_layers=self.num_inner_layers,
                     curr_size=self.dim_arr[-i - 1],
@@ -810,10 +807,10 @@ class None_Generator(nn.Module):
 
         curr_input = all_outputs[-1]
         # 无SC
-        for i in range(self.U_depth+1):
-            if i > 0:
-            # 拼接同层E的输出
-                curr_input = torch.cat([curr_input, all_outputs[-i - 1]], 1) # 按照通道（channel）维度拼接
+        for i in range(self.U_depth):
+            # if i > 0:
+            # # 拼接同层E的输出
+            #     curr_input = torch.cat([curr_input, all_outputs[-i - 1]], 1) # 按照通道（channel）维度拼接
 
             if i < self.noise_encoders:
                 z_out = self._modules["z_reshape%d" % i](z)
