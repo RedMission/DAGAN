@@ -19,7 +19,7 @@ def get_dagan_args():
     parser.add_argument(
         "--final_model_path", type=str,
         # 保存整个模型
-        default="model_path/SC_IITD_generator.pt",
+        default="model_path/None(MC+SC)_IITD_generator.pt",
         help="Filepath to save final dagan model."
     )
     parser.add_argument(

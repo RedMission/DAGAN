@@ -400,7 +400,7 @@ class Discriminator(nn.Module):
         # Number of times dimension is halved 尺寸减半的次数
         self.depth = len(self.layer_sizes)
 
-        # dimension at each level of U-net U-net每个级别的维度
+        # 每个级别的维度
         self.dim_arr = [dim]
         for i in range(self.depth):
             self.dim_arr.append((self.dim_arr[-1] + 1) // 2)
@@ -413,10 +413,10 @@ class Discriminator(nn.Module):
             stride=2,
             out_size=self.dim_arr[1],
         )
-        for i in range(1, self.depth):
+        for i in range(1, self.depth): # 这里要解释设置个数的必要性
             self.add_module(
                 "encode%d" % i,
-                block(
+                block( # 设定的psa模块
                     pre_channels=self.channels if i == 1 else self.layer_sizes[i - 1],
                     in_channels=self.layer_sizes[i - 1], # 上一层的输出
                     out_channels=self.layer_sizes[i], # 设定的本层输出

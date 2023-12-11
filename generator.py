@@ -51,9 +51,9 @@ def _conv2d_transpose(
         layers["dropout"] = nn.Dropout(dropout)
     return nn.Sequential(layers)
 
-# ###########  MC+SC版本  ###########类目有问题，需要按照实验意图（结合pt文件）修改##############
+## # # # # # # # # # # # # # #  DC+SC版本  ###########类目有问题，需要按照实验意图（结合pt文件）修改##############
 # class _EncoderBlock(nn.Module):
-#     # MC+SC
+#     # DC+SC
 #     def __init__(
 #         self, pre_channels, in_channels, out_channels, num_layers, dropout_rate=0.0
 #     ):
@@ -110,7 +110,7 @@ def _conv2d_transpose(
 #         return all_outputs[-2], all_outputs[-1]
 #
 # class _DecoderBlock(nn.Module):
-#     # MC+SC
+#     # DC+SC
 #     def __init__(
 #         self,
 #         pre_channels,
@@ -184,7 +184,7 @@ def _conv2d_transpose(
 #         return all_outputs[-2], all_outputs[-1] # 看all_outputs列表的尺寸规律
 #
 # class Generator(nn.Module):
-#     # MC+SC
+#     # DC+SC
 #     def __init__(self, dim, channels, dropout_rate=0.0, z_dim=100):
 #         super().__init__()
 #         self.dim = dim
@@ -330,9 +330,9 @@ def _conv2d_transpose(
 #             # print("ddd")
 #         return self.tanh(curr_input)
 
-# # # # # # # # # # # # # # # #   MC版本  # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # #   DC版本  # # # # # # # # # # # # # # # # # # #
 # class _EncoderBlock(nn.Module):
-#     # MC版
+#     # DC版
 #     def __init__(
 #         self, pre_channels, in_channels, out_channels, num_layers, dropout_rate=0.0
 #     ):
@@ -635,7 +635,7 @@ class None_EncoderBlock(nn.Module):
             all_outputs.append(out)
         return all_outputs[-1]
 class None_DecoderBlock(nn.Module):
-    # 无密集MC
+    # 无SC
     def __init__(
         self,
         pre_channels,
@@ -703,7 +703,7 @@ class None_DecoderBlock(nn.Module):
             out = module(outputs[-1])
         return out
 class None_Generator(nn.Module):
-    # 无密集连接MC、SC版本
+    # 无密集连接DC、SC版本
     def __init__(self, dim, channels, dropout_rate=0.0, z_dim=100):
         super().__init__()
         self.dim = dim
@@ -802,7 +802,7 @@ class None_Generator(nn.Module):
         # Final output of every encoding block
         all_outputs = [x, self.encode0(x)] # 已有两项
 
-        # Last 2 layer outputs 没有滑动窗口，直接逐步传递更新（无MC）
+        # Last 2 layer outputs 没有滑动窗口，直接逐步传递更新（无DC）
         for i in range(1, len(self.layer_sizes)):
             out = self._modules["encode%d" % i](all_outputs[-1]) # 对外层out更新
             all_outputs.append(out)
