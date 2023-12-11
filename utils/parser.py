@@ -19,7 +19,7 @@ def get_dagan_args():
     parser.add_argument(
         "--final_model_path", type=str,
         # 保存整个模型
-        default="model_path/final_IITD_generator.pt",
+        default="model_path/SC_IITD_generator.pt",
         help="Filepath to save final dagan model."
     )
     parser.add_argument(
@@ -33,7 +33,7 @@ def get_dagan_args():
         "--img_size",
         nargs="?",
         type=int,
-        default= 64,
+        default= 128,
         help="Dimension to scale images when training. "
         "Useful when model architecture expects specific input size. "
         "If not specified, uses img_size of data as passed.",

@@ -151,10 +151,10 @@ def get_PSNR(generated_images, real_images):
 
 if __name__ == '__main__':
     # 加载数据
-    data_name = "IITDdata_left_PSA_n+MC+SCW_6.npy"
+    data_name = "IITDdata_left_PSA+W_6.npy"
     # data_name = "PolyUROI_PSA+SC_6.npy"
-    # data_name = "IITDdata_left_PSA+SC_6.npy"
-    num = data_name.split(".")[0][-1]
+    # data_name = "IITDdata_left_PSA+SC+MC+W_6.npy"
+    num = data_name.split(".")[0].split("_")[-1] # 取位数
     raw_data = np.load("../datasets/"+ data_name, allow_pickle=True).copy()
 
     # 加载生成的图像和真实图像的array

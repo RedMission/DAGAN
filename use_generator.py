@@ -93,7 +93,7 @@ def generate_dataset(generator_sample_num):
 
 if __name__ == '__main__':
     # 加载训练好的模型
-    model_name = "IITD_230316_PSA+SC_MC_W_epoch100_l_generator.pt"
+    model_name = "final_IITD(UNet)_generator.pt"
     g = torch.load("model_path/" + model_name, map_location=torch.device('cuda'))
     # model.eval()不启用 BatchNormalization 和 Dropout，保证BN和dropout不发生变化，
     # pytorch框架会自动把BN和Dropout固定住，不会取平均，而是用训练好的值
@@ -112,13 +112,13 @@ if __name__ == '__main__':
     # print(g.dim) # 84
     # 噪声
     z = torch.randn((1, g.z_dim)).to('cuda')
-    generator_sample_num = 10
+    generator_sample_num = 6
     start = time.time()
     new_data = generate_dataset(generator_sample_num)
     end = time.time()
     print("times:",(end - start)/(new_data.shape[0]*new_data.shape[1]))
     print("已生成扩充数据：",new_data.shape)
-    np.save('datasets/'+data_name+"_PSA+SC+MC+W_"+str(generator_sample_num)+".npy", new_data)
+    np.save('datasets/'+data_name+"_PSA+W_"+str(generator_sample_num)+".npy", new_data)
 
 
 
