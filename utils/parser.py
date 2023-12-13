@@ -19,7 +19,7 @@ def get_dagan_args():
     parser.add_argument(
         "--final_model_path", type=str,
         # 保存整个模型
-        default="model_path/None(MC+SC)_IITD_generator.pt",
+        default="model_path/SC_IITD_generator.pt",
         help="Filepath to save final dagan model."
     )
     parser.add_argument(
@@ -80,7 +80,7 @@ def get_dagan_args():
         "--load_checkpoint_path",
         nargs="?",
         type=str,
-        # default="checkpoints/oint.pt",
+        # default="checkpoints/20231211-1956checkpoint.pt",
         help="Filepath of intermediate checkpoint from which to resume training.",
     )
     parser.add_argument(

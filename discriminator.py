@@ -290,7 +290,7 @@ class _EncoderBlock_2(nn.Module):
         all_outputs = [x, out]
         for i in range(1, self.num_layers + 2): # 2个PSA
             input_features = torch.cat(
-                [all_outputs[-1], all_outputs[-2]] + all_outputs[:-2], 1 # 拼接
+                [all_outputs[-1], all_outputs[-2]] + all_outputs[:-2], 1 # 将多个特征图组成list,进行cat拼接
             )
             module = self._modules["conv%d" % i]
             out = module(input_features) # 逐层forward
@@ -348,7 +348,7 @@ class _EncoderBlock_3(nn.Module):
             total_channels += out_channels # 通道数在增加
 
             self.add_module(
-                "conv%d" % int(i+1),
+                "conv%d" % int(i+1), # 每步后面都加PSA
                 PyramidSplitAttention(
                     in_channels=total_channels,
                     out_channels=out_channels,
@@ -379,7 +379,8 @@ class _EncoderBlock_3(nn.Module):
         all_outputs = [x, out]
         for i in range(1, self.num_layers + 2): # 2个PSA
             input_features = torch.cat(
-                [all_outputs[-1], all_outputs[-2]] + all_outputs[:-2], 1 #
+                [all_outputs[-1], all_outputs[-2]]
+                + all_outputs[:-2], 1 #
             )
             module = self._modules["conv%d" % i]
             out = module(input_features) # 逐层forward
@@ -394,8 +395,8 @@ class Discriminator(nn.Module):
         self.z_dim = z_dim
         self.channels = channels
         self.layer_sizes = [64, 64, 128, 128]
-        self.num_inner_layers = 5
-        block = _EncoderBlock_1 # 设定psa模块
+        self.num_inner_layers = 5 # 为什么模块内有5个卷积？
+        block = _EncoderBlock_2 # 设定psa模块
 
         # Number of times dimension is halved 尺寸减半的次数
         self.depth = len(self.layer_sizes)
@@ -413,7 +414,7 @@ class Discriminator(nn.Module):
             stride=2,
             out_size=self.dim_arr[1],
         )
-        for i in range(1, self.depth): # 这里要解释设置个数的必要性
+        for i in range(1, self.depth): # 这里要解释设置个数 只有1-3个
             self.add_module(
                 "encode%d" % i,
                 block( # 设定的psa模块
@@ -446,10 +447,11 @@ class Discriminator(nn.Module):
         return out
 
 if __name__ == '__main__':
-    # model = Discriminator(dim=128, channels=1 * 2, dropout_rate=0.5)
+    model = Discriminator(dim=128, channels=1 * 2, dropout_rate=0.5)
+    print(model)
     a = torch.randn([16, 1, 128, 128])
     b = torch.randn([16, 1, 128, 128])
-    # y = model(a,b)
+    y = model(a,b)
     # print(y.shape)
 
-    print(a.shape)
+    # print(y)
