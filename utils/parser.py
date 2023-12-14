@@ -19,14 +19,14 @@ def get_dagan_args():
     parser.add_argument(
         "--final_model_path", type=str,
         # 保存整个模型
-        default="model_path/IITD(Z4_PSA_2+Unet)_generator.pt",
+        default="model_path/IITD(Z4_PSA_2+Unet+SC)_generator.pt", # 1002:Z4 GOOGLE:Z2
         help="Filepath to save final dagan model."
     )
     parser.add_argument(
         "--batch_size",
         nargs="?",
         type=int,
-        default=12,
+        default=10,
         help="batch_size for experiment",
     )
     parser.add_argument(
