@@ -151,7 +151,7 @@ def get_PSNR(generated_images, real_images):
 
 if __name__ == '__main__':
     # 加载数据
-    data_name = "IITDdata_left_Z4_PSA2+DC+SC+W_6.npy"
+    data_name = "IITDdata_left_Z4_PSA2+SC+W_6.npy"
     # data_name = "PolyUROI_PSA+SC_6.npy"
     # data_name = "IITDdata_left_PSA+SC+MC+W_6.npy"
     num = data_name.split(".")[0].split("_")[-1] # 取位数

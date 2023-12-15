@@ -93,7 +93,7 @@ def generate_dataset(generator_sample_num):
 
 if __name__ == '__main__':
     # 加载训练好的模型
-    model_name = "IITD(Z4_PSA_2+Unet)_generator.pt"
+    model_name = "IITD(Z4_PSA_2+Unet+SC)_generator.pt"
     # model_name = "DC_IITD_generator.pt"
     g = torch.load("model_path/" + model_name, map_location=torch.device('cuda'))
     # model.eval()不启用 BatchNormalization 和 Dropout，保证BN和dropout不发生变化，
@@ -119,7 +119,7 @@ if __name__ == '__main__':
     end = time.time()
     print("times:",(end - start)/(new_data.shape[0]*new_data.shape[1]))
     print("已生成扩充数据：",new_data.shape)
-    np.save('datasets/'+data_name+"_Z4_PSA2+DC+SC+W_"+str(generator_sample_num)+".npy", new_data)
+    np.save('datasets/'+data_name+"_Z4_PSA2+SC+W_"+str(generator_sample_num)+".npy", new_data)
 
 
 

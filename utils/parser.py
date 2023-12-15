@@ -19,7 +19,7 @@ def get_dagan_args():
     parser.add_argument(
         "--final_model_path", type=str,
         # 保存整个模型
-        default="model_path/IITD(Z4_PSA_2+Unet+SC)_generator.pt", # 1002:Z4 GOOGLE:Z2
+        default="model_path/IITD(Z2_PSA_2+Unet+DC+SC)_generator.pt", # 1002:Z4 GOOGLE:Z2
         help="Filepath to save final dagan model."
     )
     parser.add_argument(
