@@ -218,7 +218,7 @@ class DC_SC_Generator(nn.Module):
             )
 
         # Noise encoders
-        self.noise_encoders = 4
+        self.noise_encoders = 3
         num_noise_filters = 8
         self.z_channels = []
         for i in range(self.noise_encoders):
@@ -495,7 +495,7 @@ class DC_Generator(nn.Module):
             )
 #
         # Noise encoders
-        self.noise_encoders = 4
+        self.noise_encoders = 0
         num_noise_filters = 8
         self.z_channels = []
         for i in range(self.noise_encoders):
@@ -736,7 +736,7 @@ class None_Generator(nn.Module):
             )
 
         # Noise encoders
-        self.noise_encoders = 2
+        self.noise_encoders = 1
         num_noise_filters = 8
         self.z_channels = []
         for i in range(self.noise_encoders):

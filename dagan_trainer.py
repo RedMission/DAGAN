@@ -77,7 +77,10 @@ class DaganTrainer:
         # Create total loss and optimize
         self.d_opt.zero_grad()
         # 计算判别损失、反向传播
-        d_loss = d_generated.mean() - d_real.mean() + gradient_penalty
+        # 梯度损失
+        # d_loss = d_generated.mean() - d_real.mean() + gradient_penalty
+        d_loss = d_generated.mean() - d_real.mean()
+
         d_loss.backward()
 
         self.d_opt.step()
@@ -155,10 +158,13 @@ class DaganTrainer:
             x1, x2 = data[0].to(self.device), data[1].to(self.device)
             # 判别器进行迭代（每步都跑）
             self._critic_train_iteration(x1, x2)
+
             # Only update generator every |critic_iterations| iterations
-            # 到达设定要求才进行 生成器迭代
-            if self.num_steps % self.critic_iterations == 0:
-                self._generator_train_iteration(x1)
+            # # 到达设定要求才进行 生成器迭代(95%) 撤销TTUR改为每次都同步更新
+            # if self.num_steps % self.critic_iterations == 0:
+            #     self._generator_train_iteration(x1)
+            self._generator_train_iteration(x1)
+
 
     def train(self, data_loader, epochs, val_images=None, save_training_gif=True):
         '''

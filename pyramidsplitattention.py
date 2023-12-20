@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 
 class PyramidSplitAttention(nn.Module):
-    def __init__(self, in_channels, out_channels=None, scales=[3, 6]):
+    def __init__(self, in_channels, out_channels=None, scales=[3, 6, 12]):
         super(PyramidSplitAttention, self).__init__()
         self.out_channels = out_channels
         self.scales = scales

@@ -19,14 +19,14 @@ def get_dagan_args():
     parser.add_argument(
         "--final_model_path", type=str,
         # 保存整个模型
-        default="model_path/IITD(Z2_PSA_2+Unet+DC+SC)_generator.pt", # 1002:Z4 GOOGLE:Z2
+        default="model_path/IITD(Z3_PSA_2+Unet+DC+SC(None))_generator.pt", #
         help="Filepath to save final dagan model."
     )
     parser.add_argument(
         "--batch_size",
         nargs="?",
         type=int,
-        default=10,
+        default=8,
         help="batch_size for experiment",
     )
     parser.add_argument(
@@ -80,7 +80,7 @@ def get_dagan_args():
         "--load_checkpoint_path",
         nargs="?",
         type=str,
-        # default="checkpoints/20231211-1956checkpoint.pt",
+        # default="checkpoints/20231215-0104checkpoint.pt",
         help="Filepath of intermediate checkpoint from which to resume training.",
     )
     parser.add_argument(
