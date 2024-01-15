@@ -151,9 +151,9 @@ def get_PSNR(generated_images, real_images):
 
 if __name__ == '__main__':
     # 加载数据
-    data_name = "IITDdata_left_Z3(2)_PSA2+SC+W_6.npy"
+    # data_name = "IITDdata_left_Z3(2)_PSA2+SC+W_6.npy"
     # data_name = "PolyUROI_PSA+SC_6.npy"
-    # data_name = "IITDdata_left_PSA2+SC+W_6.npy"
+    data_name = "IITDdata_left_PSA2+W_6.npy"
     num = data_name.split(".")[0].split("_")[-1] # 取位数
     raw_data = np.load("../datasets/"+ data_name, allow_pickle=True).copy()
 

@@ -161,9 +161,9 @@ class DaganTrainer:
 
             # Only update generator every |critic_iterations| iterations
             # # 到达设定要求才进行 生成器迭代(95%) 撤销TTUR改为每次都同步更新
-            # if self.num_steps % self.critic_iterations == 0:
-            #     self._generator_train_iteration(x1)
-            self._generator_train_iteration(x1)
+            if self.num_steps % self.critic_iterations == 0:
+                self._generator_train_iteration(x1)
+            # self._generator_train_iteration(x1)
 
 
     def train(self, data_loader, epochs, val_images=None, save_training_gif=True):
